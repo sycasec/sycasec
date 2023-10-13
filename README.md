@@ -1,6 +1,6 @@
 
 <div align="center">
   <kbd>
-    ![](cyberpunk-blackwall.gif)
+    <img border src="https://github.com/sycasec/cyberpunk-blackwall.gif"/>
   </kbd>
 </div>
