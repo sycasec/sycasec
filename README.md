@@ -1,6 +1,6 @@
 
 <div align="center">
   <kbd>
-    <img src="https://tenor.com/bVfFQ.gif"/>
+    ![](cyberpunk-blackwall.gif)
   </kbd>
 </div>
