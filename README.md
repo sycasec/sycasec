@@ -1,4 +1,3 @@
-# Wake up, SAMURAI..
 
 <div align="center">
   <kbd>
