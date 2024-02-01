@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>posts on CyberSec Blog</title>
-    <link>https://sycasec.github.io/post/</link>
+    <link>https://sycasec.github.io/sycasec/post/</link>
     <description>Recent content in posts on CyberSec Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 01 Feb 2024 15:24:13 +0800</lastBuildDate>
-    <atom:link href="https://sycasec.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://sycasec.github.io/sycasec/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>SamplePost</title>
-      <link>https://sycasec.github.io/post/samplepost/</link>
+      <link>https://sycasec.github.io/sycasec/post/samplepost/</link>
       <pubDate>Thu, 01 Feb 2024 15:24:13 +0800</pubDate>
-      <guid>https://sycasec.github.io/post/samplepost/</guid>
+      <guid>https://sycasec.github.io/sycasec/post/samplepost/</guid>
       <description>Hello This is sample Post.&#xA;gyatt</description>
     </item>
   </channel>
