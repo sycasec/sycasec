@@ -2,25 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://sycasec.github.io/sycasec/</loc>
+    <loc>https://sycasec.github.io/</loc>
     <lastmod>2024-02-09T23:17:32+08:00</lastmod>
   </url><url>
-    <loc>https://sycasec.github.io/sycasec/post/</loc>
+    <loc>https://sycasec.github.io/post/</loc>
     <lastmod>2024-02-09T23:17:32+08:00</lastmod>
   </url><url>
-    <loc>https://sycasec.github.io/sycasec/post/writeup0/</loc>
+    <loc>https://sycasec.github.io/post/writeup0/</loc>
     <lastmod>2024-02-09T23:17:32+08:00</lastmod>
   </url><url>
-    <loc>https://sycasec.github.io/sycasec/post/samplepost/</loc>
+    <loc>https://sycasec.github.io/post/samplepost/</loc>
     <lastmod>2024-02-01T15:24:13+08:00</lastmod>
   </url><url>
-    <loc>https://sycasec.github.io/sycasec/about/</loc>
+    <loc>https://sycasec.github.io/about/</loc>
     <lastmod>2024-02-01T10:36:54+08:00</lastmod>
   </url><url>
-    <loc>https://sycasec.github.io/sycasec/tags/</loc>
+    <loc>https://sycasec.github.io/tags/</loc>
   </url><url>
-    <loc>https://sycasec.github.io/sycasec/categories/</loc>
+    <loc>https://sycasec.github.io/categories/</loc>
   </url><url>
-    <loc>https://sycasec.github.io/sycasec/note/</loc>
+    <loc>https://sycasec.github.io/note/</loc>
   </url>
 </urlset>
