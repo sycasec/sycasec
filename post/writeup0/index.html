@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <title>
+Writeup0 | Perez, Dy, del Castillo
+</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="generator" content="Hugo 0.122.0">
+
+
+<link rel="canonical" href="https://sycasec.github.io/sycasec/post/writeup0/" >
+<link href="/sycasec/sass/main.min.7b717d09afc95cbb2024b3c24ce8e5ad32541e0cb77effe6a7aae21534367b0d.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="flexWrapper">
+        <header class="header">
+    <div class="wrapper">
+        <a href="https://sycasec.github.io/sycasec">
+            <span class="terminal">hello,friend@cybersec-blog ~ $</span>
+            <span class="cursor"></span>
+        </a>
+        <div class="menu">
+            <input type="checkbox" class="menu-toggle" id="menu-toggle" />
+            <nav class="menu-items">
+                <ul>
+                    
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/about"  title="" >
+                            ~/about</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/notes"  title="" >
+                            ~/notes</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/posts"  title="" >
+                            ~/posts</a>
+                    </li>
+                    
+                </ul>
+            </nav>
+            <label for="menu-toggle" class="menu-trigger">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                </svg>
+            </label>
+        </div>
+    </div>
+</header>
+
+        <div class="content">
+            <main class="main">
+                
+<div class="postWrapper post">
+    <h1>Writeup0</h1>
+    <div class="postMeta">
+        
+        <span>February 9, 2024</span>
+        
+        
+    </div>
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/Qe73tRTksf0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+<p>Any decent (or old) cybersecurity expert knows about Kevin Mitnick.Any decent (or old) cybersecurity expert knows about Kevin Mitnick. Famous for many of his early exploits, Mitnick is a black-hat turned white-hat hacker. Born in 1963, Mitnick’s first hack was at age 12, convincing a bus driver to tell him where he could get his own ticket puncher for “a school project”. He then looked for blank LA bus transfer tickets in dumpsters, using the punch machine to get unlimited, free rides.</p>
+<p>At age 16, Mitnick was dared by a hacker group to hack into a computer system named “The Ark” at Digital Equipment Corporation (DEC), a major American company in the computer industry from the 1960s to the 1990s. “The Ark” was used to develop and maintain the source code for DEC’s RSTS/E operating system. Mitnick posed as Anton Chernoff, one of the lead developers of “The Ark” at DEC and called the system manager claiming to have forgotten the password to one of the accounts. The system manager was convinced that Mitnick was the real deal, giving Mitnick access and allowing him to create a new password, and was given the precautionary dial-up password “buffoon”. In less than five minutes, Mitnick gained access to DEC’s RSTS/E OS with the privileges of a system developer. Mitnick demonstrated his access to his new hacker “friends”, and on the same day those “friends” went to another location, downloaded source-code components of the RSTS/E, and called DEC’s corporate security informing them of the hack and turning Mitnick in.</p>
+<p>Mitnick spent most of his life working as a private investigator and social engineer. Mitnick was able to access and download copies of software from major tech companies like Sun Microsystems, Nokia, Fujitsu, Motorola, NEC, among others. Eventually, Mitnick was captured by the FBI along with John Markoff and Tsutomu Shimomura, and was sentenced to jail for 4 ½ years and 8 months in solitary confinement for allegedly $300 million, without bail and without trial. The Free Kevin movement</p>
+<p>While Mitnick’s imprisonment was muddled with controversies, what remains true to this day is that Kevin Mitnick’s feats gave rise to the term “Social Engineering” - exploiting the humans in positions of authority to gain access to computer systems. ‌‌</p>
+<h2 id="humans-as-the-weakest-link-in-cyber-security">Humans as the weakest link in cyber security</h2>
+
+
+
+<iframe src="https://open.spotify.com/embed/episode/38RuwrVwAHNXgHLDOANtmj"
+    width="100%"
+    height="250"
+    frameborder="0"
+    allowtransparency="true"
+    allow="encrypted-media"></iframe>
+
+
+<p>Many famous hacks involve exploiting a security weakness, like the NSO Group’s “Pegasus” spyware in 2016, which exploited several iOS zero-days, implanting rootkits from NSO servers into an iPhone and successfully jailbreaking it. While it could be argued that the Pegasus spyware exploited a human (in this case, an iOS dev’s) skill issue, humans being the weakest link in cyber security is best exemplified in Social Engineering attacks.</p>
+<p>Mitnick’s specialty was social engineering his way into computer systems. In the video below this paragraph, Mitnick details how he used deception to steal Motorola’s source code for the MiroTAC Ultra Lite Phone.</p>
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/fT8Jw-63MXM" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+<p>In the history of hacking, exploiting human error has always been at the core of hacking - no matter the technology involved. In the 1960’s, one of the first popularized hacks was telephone phreaking, where a “hacker” uses a high pitch noises to trick a phone into receiving operational commands, allowing a hacker to switch calls from the phone handset, allowing free, long-distance calls, along with allowing the hacker to manipulate the call’s geographical location and number.</p>
+<p>This allowed hackers like Kevin Mitnick, among others, to gain access and privileges to systems they normally would not be able to, like how Mitnick detailed in the video above.</p>
+<p>Another hack that showcases exploiting the human is phishing attacks, where the hacker sends a malicious email posing as a legitimate email - often asking a user to click link that downloads spyware.</p>
+<p>Phishing attacks have become a staple for criminal activity, and are still found to be effective to this day, targeting corporate employees to gain access into otherwise secure systems. Many of the early internet viruses, ransomware, and spyware were propagated via Phishing, such as the <a href="https://www.kaspersky.com/resource-center/definitions/what-is-the-koobface-virus">koobface</a> malware, the famed <a href="https://www.wired.com/story/the-20-year-hunt-for-the-man-behind-the-love-bug-virus/">ILOVEYOU</a> virus by our very own Onel de Guzman, among many others.</p>
+<h2 id="mitigation-techniques">mitigation techniques</h2>
+<blockquote>
+<p>“i can only show you the door, you’re the one that has to walk through it” - morpheus (the matrix)</p>
+</blockquote>
+<p>most cybersecurity breaches involve easily preventable exploits. the problem is that most
+corporations do not really factor security into their “agile” processes from the get go.</p>
+<p>any cybersecurity expert would recommend that training their employees in security is the most important security spending there is. designing with security in mind should be out of the question. however it is possible to overplan and overspend in security - hackers are persistent and can wait years just for one miracle loophole. security is a balance, and knowledge is power. just train the people in cybersecurity, dammit.</p>
+<p>anyway, enjoy this video about sony triggering the anonymous group, and how chaotic an “anonymous” hacker group can be.</p>
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/66A4zcJaPLk" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+<h2 id="summary">summary</h2>
+<blockquote>
+<p>“choice. the problem is choice.” - neo (the matrix reloaded)</p>
+</blockquote>
+<p>while the matrix quotes are cringe, i just couldn’t help it. the problem with most (if not all) software weaknesses are just humans. i mean, social engineering, phishing, and all hacks aside, who made the software that was hacked? who did the hacking? cyber security is an endless cat and mouse game, and all you can do is choose between the <strong>red</strong> team, and the <strong>blue</strong> team (haha see what I did there).</p>
+<h3 id="sources">sources</h3>
+<p><a href="https://cyberexperts.com/kevin-mitnick-the-most-infamous-hacker-of-all-time/">https://cyberexperts.com/kevin-mitnick-the-most-infamous-hacker-of-all-time/</a>
+<a href="https://passwordresearch.com/stories/story47.html">https://passwordresearch.com/stories/story47.html</a>
+<a href="https://www.theregister.com/2003/01/13/chapter_one_kevin_mitnicks_story/">https://www.theregister.com/2003/01/13/chapter_one_kevin_mitnicks_story/</a>
+<a href="https://www.wired.com/story/the-20-year-hunt-for-the-man-behind-the-love-bug-virus/">https://www.wired.com/story/the-20-year-hunt-for-the-man-behind-the-love-bug-virus/</a>
+<a href="https://www.kaspersky.com/resource-center/definitions/what-is-the-koobface-virus">https://www.kaspersky.com/resource-center/definitions/what-is-the-koobface-virus</a></p>
+
+</div>
+
+            </main>
+        </div>
+        <footer class="footer">
+    &copy; 2024 Perez, Dy, del Castillo, Built with
+    <a href="https://gohugo.io" class="footerLink">Hugo</a> and
+    <a href="https://github.com/akopdev/hugo-theme-rose-pine" class="footerLink">Rose Pine</a> theme
+</footer>
+
+
+
+    </div>
+</body>
+</html>
