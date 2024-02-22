@@ -87,6 +87,23 @@ posts | Perez, Dy, del Castillo
 
             
             <div class="postListItem" role="listitem">
+              <a href="https://sycasec.github.io/sycasec/post/mp1/">
+                <div class="postHeader">
+                    <div class="postTitle">Machine Problem 1</div>
+                </div>
+                <div class="postExcerpt">
+                    <p>TL;DR eip upon entering vuln() is 0x56556183 we break at 0x56556191 (ret from vuln) to observe behavior of eip following the suggested information-giving commands in gdb, we get the desirable esp in vuln being 0xffffcde8 we confirm this by defining hook-stop with x/1i $eip and x/16wx $esp which allows us to view the current instruction and the next 16 words in the stack every time execution is stopped we try to craft the shell code compiling the given asm with necessary incantations fails we look for an exit one shell code in shell-storm we find that it has the exact same codes in as the ones already in the mp1.</p>
+                </div>
+              </a>
+                <div class="postMeta">
+                Feb 22, 2024
+                
+                </div>
+            </div>
+        
+
+            
+            <div class="postListItem" role="listitem">
               <a href="https://sycasec.github.io/sycasec/post/writeup0/">
                 <div class="postHeader">
                     <div class="postTitle">Writeup0</div>
