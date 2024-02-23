@@ -76,7 +76,7 @@ Machine Problem 1 | Perez, Dy, del Castillo
         <span>February 22, 2024</span>
         
         
-    </div><h2 id="tldr">TL;DR</h2>
+    </div><h1 id="tldr">TL;DR</h1>
 <ul>
 <li><code>eip</code> upon entering <code>vuln()</code> is <code>0x56556183</code></li>
 <li>we break at <code>0x56556191</code> (<code>ret</code> from <code>vuln</code>) to observe behavior of <code>eip</code></li>
@@ -131,7 +131,7 @@ Machine Problem 1 | Perez, Dy, del Castillo
 </span></span><span class="line"><span class="cl">	<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="know-thy-enemy">Know thy enemy</h2>
+</div><h1 id="know-thy-enemy">Know thy enemy</h1>
 <p>Let&rsquo;s first take a look at the instructions for <code>main</code> and <code>vuln</code>:</p>
 <p><figure class="centered"><img src="main.png" width="400"/><figcaption>
             <h4>main.png</h4>
@@ -229,9 +229,9 @@ we can confirm this by getting information on the stack frame with <code>info fr
 <figure><img src="main.png" width="400"/>
 </figure>
 
-<h2 id="what-do-we-do-now">What do we do now?</h2>
+<h1 id="what-do-we-do-now">What do we do now?</h1>
 <p>First, lets grab our shell code:</p>
-<h3 id="ghost-in-the-egg-shell">Ghost in the (egg) Shell</h3>
+<h2 id="ghost-in-the-egg-shell">Ghost in the (egg) Shell</h2>
 <p>The provided asm doesnt really compile on my end, even with the provided incantation</p>
 <p><figure><img src="asm.png" width="330"/>
 </figure>
@@ -341,8 +341,8 @@ we can confirm this by getting information on the stack frame with <code>info fr
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Now I can tell you that I <em>know</em> what exactly it is doing given these commands, but I can’t really explain why. I looked through the <a href="https://cdrdv2-public.intel.com/671110/325383-sdm-vol-2abcd.pdf">intel developer’s manual</a> but I can’t really find an explanation as to why setting <code>eax = 1</code> results in the <code>syscall exit</code>, or why it looks at <code>ebx</code> to provide the exit code, or why <code>cd 80 (int $0x80)</code> results in an interrupt. So for now let’s just press the <strong>i believe</strong> button on this and press on.</p>
-<h3 id="rip-and-tear"><code>rip</code> and tear</h3>
-<p>The call to <code>gets()</code> in the next instruction allows us to write into the start of buffer, <code>0xffffcdf8</code> and beyond.</p>
+<h2 id="rip-and-tear"><code>rip</code> and tear</h2>
+<p>The call to <code>gets()</code> in the next instruction allows us to write into the start of buffer, <code>0xffffcde8</code> and beyond.</p>
 <figure><img src="annotated.png" width="550"/>
 </figure>
 
@@ -381,7 +381,7 @@ we can confirm this by getting information on the stack frame with <code>info fr
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>Because we can, lets do both!</p>
-<h4 id="snipe-method">Snipe method</h4>
+<h3 id="snipe-method">Snipe method</h3>
 <p>Let’s outline the steps of our creating the snipe shell code:</p>
 <ul>
 <li>insert <code>exit 01</code> shell code (<code>\x31\xc0\x40\x89\xc3\xcd\x80</code>) into the <code>buffer</code></li>
@@ -461,7 +461,7 @@ Let’s also take a look at what the next 5 instructions are:
 </figure>
 
 <p>and just like that, snipe method worked just fine.</p>
-<h4 id="matrix-method">Matrix method</h4>
+<h3 id="matrix-method">Matrix method</h3>
 <p>To recap:</p>
 <figure><img src="arrow.png" width="550"/>
 </figure>
@@ -717,7 +717,7 @@ As usual:</p>
 </figure>
 
 <p>We can see that its executing <code>/usr/bin/bash</code>, because <code>/bin/bash</code> is just a <code>symlink</code>. Anyway, now we have what they call arbitrary code execution – sort of. I can’t really get this to run in the terminal, even when I disable Address space layout randomization (<em>ASLR</em>) for <code>vuln</code>. I suspect it might have something to do with having a different memory address as compared to running it in <code>gdb</code>, but that’s already outside the scope of this machine problem, so I believe that’s the end of this writeup.</p>
-<h4 id="それでわ-じゃあ">それでわ、 じゃあ！</h4>
+<h3 id="それでわ-じゃあ">それでわ、 じゃあ！</h3>
 
 </div>
 
