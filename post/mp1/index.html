@@ -162,13 +162,13 @@ Machine Problem 1 | Perez, Dy, del Castillo
                                          stuff             │
                               ---------------------------  ╯
 </code></pre><p>We can see main allocating its own stack frame in the next instruction, by moving <code>ebp</code> to <code>esp</code></p>
-<p><figure class="centered"><img src="main-alloc.png" width="600"/>
+<figure class="centered"><img src="main-alloc.png" width="600"/>
 </figure>
 
-we can confirm this by getting information on the stack frame with <code>info frame</code>
+<p>we can confirm this by getting information on the stack frame with <code>info frame</code></p>
 <figure class="centered"><img src="info-frame.png" width="500"/>
 </figure>
-</p>
+
 <p>As we saw in <code>dissassemble main</code> above, the next instruction is to <code>call &lt;vuln&gt;</code>. Let&rsquo;s single step and and view our registers to confirm that main’s stack frame is indeed in <code>0xffffcdf8</code>:</p>
 <figure><img src="view-reg.png" width="500"/>
 </figure>
@@ -180,15 +180,15 @@ we can confirm this by getting information on the stack frame with <code>info fr
 <p>Lets analyze it a bit *(edited for clarity):</p>
 <ol>
 <li>
+<p><code>0x56556195 &lt;main+3&gt;:    call   0x5655-617d &lt;vuln&gt;</code></p>
 <ul>
-<li><code>0x56556195 &lt;main+3&gt;:    call   0x5655617d &lt;vuln&gt;</code></li>
 <li>stores return address in 1, which is at the address <code>0xffffcdf5-&gt;0xffffcdf8</code></li>
 <li>*this is the <code>rip</code> or where the <code>eip</code> will jump to after executing all of <code>vuln</code>&rsquo;s instructions.</li>
 </ul>
 </li>
 <li>
+<p><code>0x5655617d &lt;vuln&gt;:    push   %ebp</code></p>
 <ul>
-<li><code>0x5655617d &lt;vuln&gt;:    push   %ebp</code></li>
 <li>pushes the previous <code>ebp</code></li>
 <li>*you guessed it, this is the <code>sfp</code> or the previous <code>ebp</code> (in this case, it&rsquo;s <code>main</code>&rsquo;s `ebp)</li>
 </ul>
