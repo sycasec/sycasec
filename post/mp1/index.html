@@ -174,36 +174,29 @@ we can confirm this by getting information on the stack frame with <code>info fr
 <figure><img src="stack-anl.png" width="600"/>
 </figure>
 
-<p>Lets analyze it a bit:</p>
+<p>Lets analyze it a bit *(edited for clarity):</p>
 <ol>
 <li>
 <ul>
-<li><code>0x56556195 &lt;main+3&gt;:	call   0x5655617d &lt;vuln&gt;</code></li>
+<li><code>0x56556195 &lt;main+3&gt;:    call   0x5655617d &lt;vuln&gt;</code></li>
+<li>stores return address in 1, which is at the address <code>0xffffcdf5-&gt;0xffffcdf8</code></li>
+<li>*this is the <code>rip</code> or where the <code>eip</code> will jump to after executing all of <code>vuln</code>&rsquo;s instructions.</li>
 </ul>
 </li>
-</ol>
-<ul>
-<li>stores return address in 1, which is at the address <code>0xffffcdf5-&gt;0xffffcdf8</code></li>
-</ul>
-<ol start="2">
 <li>
 <ul>
-<li><code>0x5655617d &lt;vuln&gt;:	push   %ebp</code></li>
+<li><code>0x5655617d &lt;vuln&gt;:    push   %ebp</code></li>
+<li>pushes the previous <code>ebp</code></li>
+<li>*you guessed it, this is the <code>sfp</code> or the previous <code>ebp</code> (in this case, it&rsquo;s <code>main</code>&rsquo;s `ebp)</li>
 </ul>
 </li>
 </ol>
-<ul>
-<li>pushes the previous <code>ebp</code></li>
-<li>the next 5 instructions (<code>x/5i $eip</code>) shows us:
-<ul>
-<li>move ebp into current esp (creating a new stack frame for <code>vuln()</code>)</li>
-<li>decrement esp by 8 bytes</li>
-<li>allocate address for `buffer[8]</li>
-<li>push <code>buffer[8]</code> address into stack</li>
-<li>call <code>gets()</code> function</li>
-</ul>
-</li>
-</ul>
+<p>*The next 5 instructions (<code>x/5i $eip</code>) shows us:
+- <code>mov    %esp,%ebp</code>      :  →  move ebp into current esp (creating a new stack frame for <code>vuln()</code>)
+- <code>sub    $0x8,%esp</code>      :  →  decrement esp by 8 bytes
+- <code>lea    -0x8(%ebp),%eax</code>:  →  allocate address for <code>buffer[8]</code>
+- <code>push   %eax</code>           :  →  push <code>buffer[8]</code> address into stack
+- <code>call 0xf7c741b0</code>       :  →  call <code>&lt;_IO_gets&gt;</code> (<code>gets()</code>) subroutine</p>
 <p>We can confirm these are exactly what the program is going to do by checking registers now:</p>
 <figure><img src="info-reg-agn.png" width="450"/>
 </figure>
@@ -212,7 +205,7 @@ we can confirm this by getting information on the stack frame with <code>info fr
 <figure><img src="info-reg-2.png" width="550"/>
 </figure>
 
-<p>As you can most likely see (i hope so), the <code>esp</code> and <code>ebp</code> are now the same. Let&rsquo;s push on while keeping a close eye at the stack:</p>
+<p>As you can most likely see (i hope so), the <code>esp</code> and <code>ebp</code> are now the same because of the <code>mov %esp,%ebp</code> instruction. Remember that the instruction shown by the command <code>x/1i $eip</code> in <code>gdb</code> is the <strong>next</strong> instruction, not the current one executed. Anyway, let&rsquo;s push on while keeping a close eye at the stack:</p>
 <figure><img src="lea.png" width="650"/>
 </figure>
 
