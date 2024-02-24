@@ -78,26 +78,19 @@ Machine Problem 1 | Perez, Dy, del Castillo
         
     </div><h1 id="tldr">TL;DR</h1>
 <ul>
-<li><code>eip</code> upon entering <code>vuln()</code> is <code>0x56556183</code></li>
 <li>we break at <code>0x56556191</code> (<code>ret</code> from <code>vuln</code>) to observe behavior of <code>eip</code></li>
-<li>following the suggested information-giving commands in <code>gdb</code>, we get the desirable <code>esp</code> in vuln being <code>0xffffcde8</code>
-<ul>
-<li>we confirm this by defining <code>hook-stop</code> with <code>x/1i $eip</code> and <code>x/16wx $esp</code> which allows us to view the current instruction and the next 16 words in the stack every time execution is stopped</li>
-</ul>
-</li>
+<li>following the suggested information-giving commands in <code>gdb</code>, we get the desirable <code>esp</code> in vuln being <code>0xffffcdf8</code></li>
 <li>we try to craft the shell code</li>
 <li>compiling the given <code>asm</code> with necessary incantations fails</li>
 <li>we look for an exit one shell code in shell-storm</li>
-<li>we find that it has the exact same codes in as the ones already in the <code>mp1.pdf</code></li>
-<li>we finally craft shell code
+<li>we analyze shell code
 <ul>
 <li><code>\x90 * 12</code> for padding</li>
 <li><code>\xf8\xcd\xff\xff</code> redirecting our <code>eip</code></li>
 <li><code>\x31\xc0\x40\x89\xc3\xcd\x80</code> exit one shell code</li>
 </ul>
 </li>
-<li>we analyze exactly what the machine code does because we’re not script kiddies</li>
-<li>we try running <code>/bin/bash</code> with an <code>execve(&quot;/bin/bash&quot;)</code> shell code (ofc from shell-storm)</li>
+<li>we also try inserting an <code>execve(&quot;/bin/bash&quot;)</code> shell code (ofc from shell-storm)</li>
 <li>$$$ profit</li>
 </ul>
 <p>exit one shell code full:</p>
