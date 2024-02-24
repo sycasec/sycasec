@@ -76,7 +76,7 @@ Machine Problem 1 | Perez, Dy, del Castillo
         <span>February 22, 2024</span>
         
         
-    </div><h1 id="tldr">TL;DR</h1>
+    </div><h1 id="i-aint-readin-allat">I ain&rsquo;t readin allat:</h1>
 <ul>
 <li>we break at <code>0x56556191</code> (<code>ret</code> from <code>vuln</code>) to observe behavior of <code>eip</code></li>
 <li>following the suggested information-giving commands in <code>gdb</code>, we get the desirable <code>esp</code> in vuln being <code>0xffffcdf8</code></li>
@@ -124,7 +124,9 @@ Machine Problem 1 | Perez, Dy, del Castillo
 </span></span><span class="line"><span class="cl">	<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h1 id="know-thy-enemy">Know thy enemy</h1>
+</div><p>However we also try a different method of inserting the shell code, as described further down below.</p>
+<p>And with that,</p>
+<h1 id="know-thy-enemy">Know thy enemy</h1>
 <p>Let&rsquo;s first take a look at the instructions for <code>main</code> and <code>vuln</code>:</p>
 <p><figure class="centered"><img src="main.png" width="400"/><figcaption>
             <h4>main.png</h4>
