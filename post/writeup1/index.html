@@ -170,10 +170,17 @@ Writeup1 | Perez, Dy, del Castillo
 <p>That last point makes the <code>ECB</code> mode of block cipher operation not <code>IND-CPA</code> secure.</p>
 <h2 id="okay-but-whats-an-ecb-whats-a-block-cipher-whos-alice">Okay, but what&rsquo;s an ECB? What&rsquo;s a block cipher? Who&rsquo;s Alice?</h2>
 <p>Right, uh. A block cipher takes a message and transforms it into something else of the same length. In a few more words, this message would be a fixed-length n-bits input, and uses a shared k-bit key dictating how the algorithm would scramble the input. Plaintext goes in, ciphertext goes out, and vice versa.</p>
-<p>-&gt; <code>insert image here for the visual people </code></p>
+<!-- raw HTML omitted -->
+<p>$$ Encrypt(M, K) \rightarrow C$$
+$$ Decrypt(C, K) \rightarrow M$$</p>
 <p>AES, the most common of these algorithms, fixes the block size to 128 bits. If you&rsquo;d want a message longer than 128 bits, well&hellip;there are different modes of operations on how to process that. ECB, or Electronic Code Book, is one of those.</p>
-<p>-&gt; <code>once again, you know the drill</code></p>
 <p>ECB is considered as the simplest block cipher mode of operation - it divides a message into 128-bit blocks (under AES), each passing through the block cipher using the agreed on key to encrypt each block. These blocks would be stitched together to form the ciphertext, and the reverse is true for decryption.</p>
+<p><figure class="centered"><img src="ecb_enc_white.png" width="700"/>
+</figure>
+
+<figure class="centered"><img src="ecb_dec_white.png" width="700"/>
+</figure>
+</p>
 <h2 id="so-lets-look-at-how-this-isnt-ind-cpa-secure">So let&rsquo;s look at how this isn&rsquo;t IND-CPA secure.</h2>
 <p>Let&rsquo;s re-trace the events taking place:</p>
 <ol>
@@ -191,6 +198,12 @@ Writeup1 | Perez, Dy, del Castillo
 <li>Block Dependency - each block should be dependent on the encryption of the previous block, to make it computationally infeasible to predict the ciphertext without the key</li>
 </ul>
 <h2 id="alternative-modes-that-are-ind-cpa-secure">Alternative Modes that are IND-CPA secure</h2>
+<figure class="centered"><img src="blockchain.png" width="700"/>
+</figure>
+
+<blockquote>
+<p>Blockchain, but not that kind of blockchain. It&rsquo;s going to be huge.</p>
+</blockquote>
 <p>Since the main reason that ECB is not IND-CPA secure is it is deterministic, we just simply have to find a way to make the encryption scheme non-deterministic, right? This way, Eve can’t just simply compare the ciphertexts.</p>
 <p>But… how can we do this? How can we incorporate diffusion, randomness, and block dependency into our scheme?</p>
 <p>Luckily, the smart cryptography researchers have figured it out already! Looking at the other modes of block ciphers, we can see that they included a random variable, known as an <em>Initial Vector</em> or <em>Nonce</em>, in calculating the ciphertext. Different modes use this random variable differently, but the main thing is it is now part of the process. HOWEVER, one very important thing is that this random variable must not be reused. Every time a plaintext is encrypted, a different random variable should be used. Otherwise, it will be ECB all over again.</p>
@@ -207,6 +220,12 @@ The modes that use these 3 methods are Cipher Block Chaining (CBC), Ciphertext F
 <li>Since Eve can’t just simply compare the ciphertexts, she has no way of knowing which plaintext corresponds to the ciphertext she received at (2). Thus, Eve is defeated</li>
 </ol>
 <h4 id="is-cbc-fully-secure">Is CBC fully secure?</h4>
+<figure class="centered"><img src="hackerman.png" width="700"/>
+</figure>
+
+<blockquote>
+<p>Oh yeah I&rsquo;m about to hack into the mainframe</p>
+</blockquote>
 <p>We have already shown that CBC is IND-CPA secure. But does that mean that it is totally secure? Is it already resistant to other forms of attack? Not quite.</p>
 <p>Currently, CBC is known to be <a href="https://learn.microsoft.com/en-us/dotnet/standard/security/vulnerabilities-cbc-mode">vulnerable to a padding oracle attack</a> that could potentially reveal the plaintext to the attacker. <em>Another attack? Not again?</em>  Well, the world of cryptography is full of attacks, so get used to it.</p>
 <p>Padding oracle attack is not as simple as our IND-CPA game so we’ll need to simplify it for our 2 remaining braincells to comprehend.</p>
