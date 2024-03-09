@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <link rel="icon" type="image/png" href="/sycasec/hackerman.jpg">
+    <title>
+Writeup1 | Perez, Dy, del Castillo
+</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="generator" content="Hugo 0.123.8">
+
+
+<link rel="canonical" href="https://sycasec.github.io/sycasec/post/writeup1/" >
+<link href="/sycasec/sass/main.min.509d45ddc02a9d663ac9bd60f6ba503ce71ee9454dd9faf2e760ad60cfcd1191.css" rel="stylesheet">
+
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</head>
+
+<body>
+    <div class="flexWrapper">
+        <header class="header">
+    <div class="wrapper">
+        <a href="https://sycasec.github.io/sycasec/">
+            <span class="terminal">hello,friend@cybersec-blog ~ $</span>
+            <span class="cursor"></span>
+        </a>
+        <div class="menu">
+            <input type="checkbox" class="menu-toggle" id="menu-toggle" />
+            <nav class="menu-items">
+                <ul>
+                    
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/about"  title="" >
+                            ~/about</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/notes"  title="" >
+                            ~/notes</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/posts"  title="" >
+                            ~/posts</a>
+                    </li>
+                    
+                </ul>
+            </nav>
+            <label for="menu-toggle" class="menu-trigger">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                </svg>
+            </label>
+        </div>
+    </div>
+</header>
+
+        <div class="content">
+            <main class="main">
+                
+<div class="postWrapper post">
+    <h1>Writeup1</h1>
+    <div class="postMeta">
+        
+        <span>March 9, 2024</span>
+        
+        
+    </div><hr>
+<h1 id="ind-cpa">IND-CPA</h1>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<div>
+  
+
+</div>
+
+<p>We should give a slightly more rigorous definition of confidentiality than &lsquo;attacker can&rsquo;t read messages&rsquo; - it&rsquo;s vague especially for partial reveals of information. Thus, confidentiality is defined as ciphertext $C$ should give attacker no new info about message $M$.</p>
+<p>An experiment was made to describe this, which goes along these lines:</p>
+<ol>
+<li>An adversary, Eve, sends two messages $M_0$ and $M_1$ to Alice.</li>
+<li>Alice flips a coin (in bits, 0 or 1) to choose which message to encrypt and send back to Eve.</li>
+<li>Eve can ask Alice to encrypt other messages of her choosing to try and learn about which message Alice gave her.</li>
+<li>Eve guesses which message was given to her encrypted by Alice.</li>
+</ol>
+<p>-&gt; <code>insert image here for the visual learners</code></p>
+<p>This is called <code>ind</code>istinguishability under <code>c</code>hosen <code>p</code>laintext <code>a</code>ttack, or `IND-CPA. For an encryption method to be IND-CPA secure, Eve (the adversary) should not be able to guess which message Alice encrypted and sent better than a coin flip (1/2 + a negligible amount, normally from brute force methods that&rsquo;d take years).</p>
+<p>For practical application, these rules are added:
+M0 and M1 must be the same length,
+length of plaintext is leaked,
+Eve is limited to a practical number of encryption requests (normally O(n^k) time)
+Eve can ask Alice for the encrypted message again - this means any deterministic scheme is not IND-CPA secure</p>
+<p>That last point makes the <code>ECB</code> mode of block cipher operation not <code>IND-CPA</code> secure.</p>
+<h2 id="okay-but-whats-an-ecb-whats-a-block-cipher-whos-alice">Okay, but what&rsquo;s an ECB? What&rsquo;s a block cipher? Who&rsquo;s Alice?</h2>
+<p>Right, uh. A block cipher takes a message and transforms it into something else of the same length. In a few more words, this message would be a fixed-length n-bits input, and uses a shared k-bit key dictating how the algorithm would scramble the input. Plaintext goes in, ciphertext goes out, and vice versa.</p>
+<p>-&gt; <code>insert image here for the visual people </code></p>
+<p>AES, the most common of these algorithms, fixes the block size to 128 bits. If you&rsquo;d want a message longer than 128 bits, well&hellip;there are different modes of operations on how to process that. ECB, or Electronic Code Book, is one of those.</p>
+<p>-&gt; <code>once again, you know the drill</code></p>
+<p>ECB is considered as the simplest block cipher mode of operation - it divides a message into 128-bit blocks (under AES), each passing through the block cipher using the agreed on key to encrypt each block. These blocks would be stitched together to form the ciphertext, and the reverse is true for decryption.</p>
+<h2 id="so-lets-look-at-how-this-isnt-ind-cpa-secure">So let&rsquo;s look at how this isn&rsquo;t IND-CPA secure.</h2>
+<p>Let&rsquo;s re-trace the events taking place:</p>
+<ol>
+<li>Eve sends $M_0$ and $M_1$ to Alice.</li>
+<li>Alice sends back an encrypted message to Eve.</li>
+<li>Eve asks for encrypted versions again.</li>
+<li>Since this method is deterministic, the same ciphertext is received.</li>
+<li>Ciphertext blocks in different messages will be the same - similar messages with small changes can be encrypted and compared*</li>
+<li>Connecting this to the plaintext allows for Eve to know which message was sent 100% of the time, every time.</li>
+</ol>
+<p>So how do you get a system to be IND-CPA secure? Well, you&rsquo;d probably need these:</p>
+<ul>
+<li>Diffusion - changes in one part of the plaintext should affect other parts in the ciphertext</li>
+<li>Randomness - the ciphertext should be different each time a plaintext is encrypted</li>
+<li>Block Dependency - each block should be dependent on the encryption of the previous block, to make it computationally infeasible to predict the ciphertext without the key</li>
+</ul>
+<h2 id="alternative-modes-that-are-ind-cpa-secure">Alternative Modes that are IND-CPA secure</h2>
+<p>Since the main reason that ECB is not IND-CPA secure is it is deterministic, we just simply have to find a way to make the encryption scheme non-deterministic, right? This way, Eve can’t just simply compare the ciphertexts.</p>
+<p>But… how can we do this? How can we incorporate diffusion, randomness, and block dependency into our scheme?</p>
+<p>Luckily, the smart cryptography researchers have figured it out already! Looking at the other modes of block ciphers, we can see that they included a random variable, known as an <em>Initial Vector</em> or <em>Nonce</em>, in calculating the ciphertext. Different modes use this random variable differently, but the main thing is it is now part of the process. HOWEVER, one very important thing is that this random variable must not be reused. Every time a plaintext is encrypted, a different random variable should be used. Otherwise, it will be ECB all over again.</p>
+<p>Another method to make the whole encryption process complicated is to chain the encryption of the blocks. In other words, use the already encrypted ciphertext block in encrypting the next blocks. This allows us to achieve both diffusion and block dependency. A single character change in the first few blocks of the plaintext will cascade down to the succeeding block, thus drastically changing the whole ciphertext. This chaining also prevents attackers from gleaning information on blocks with similar message since these would produce different ciphertexts.
+The modes that use these 3 methods are Cipher Block Chaining (CBC), Ciphertext Feedback (CFB), Output Feedback (OFB) and Counter. For this writeup, we’ll be considering CBC because it will teach us a valuable lesson later.</p>
+<h3 id="cipher-block-chaining">Cipher Block Chaining</h3>
+<p>Cipher block chaining works by using the Initial Vector (IV) and XORing it with the first block of the plaintext then encrypting its result with the block cipher encryption under a key to produce the first ciphertext block. This first block is then used to encrypt the second plaintext block which will then be used to encrypt the third block and so on. Although the IV is only used once, the resulting ciphertext changes every time similar plaintext message is encrypted. Moreover, since the previous ciphertext block is used to encrypt the next block, plaintext blocks with similar message will produce different ciphertexts, thus preventing attackers from just comparing blocks to glean information on the original plaintext message.</p>
+<h4 id="lets-play-a-game">Let’s play a game</h4>
+<p>The IND-CPA security of CBC is already <a href="https://www.cs.ucdavis.edu/~rogaway/papers/sym-enc.pdf">mathematically proven</a>. But comprehending it requires a PhD so we’ll have to use the IND-CPA game instead for us, undergraduates, to understand.</p>
+<ol>
+<li>Eve sends two message to Alice, say <code>cat</code> and <code>dog</code></li>
+<li>Alice chooses <code>cat</code> (because they’re cute) and encrypts it, producing the ciphertext <code>qwe</code>. Alice then sends <code>qwe</code> to Eve</li>
+<li>Eve asks Alice for an encryption of <code>cat</code>, <code>dog</code>, and <code>fat</code> and gets back <code>asd</code>, <code>zxc</code>, and <code>rty</code>, respectively</li>
+<li>Since Eve can’t just simply compare the ciphertexts, she has no way of knowing which plaintext corresponds to the ciphertext she received at (2). Thus, Eve is defeated</li>
+</ol>
+<h4 id="is-cbc-fully-secure">Is CBC fully secure?</h4>
+<p>We have already shown that CBC is IND-CPA secure. But does that mean that it is totally secure? Is it already resistant to other forms of attack? Not quite.</p>
+<p>Currently, CBC is known to be <a href="https://learn.microsoft.com/en-us/dotnet/standard/security/vulnerabilities-cbc-mode">vulnerable to a padding oracle attack</a> that could potentially reveal the plaintext to the attacker. <em>Another attack? Not again?</em>  Well, the world of cryptography is full of attacks, so get used to it.</p>
+<p>Padding oracle attack is not as simple as our IND-CPA game so we’ll need to simplify it for our 2 remaining braincells to comprehend.</p>
+<p>First, what is a padding oracle? It’s simply a part of the crypto system that checks the padding of the decrypted plaintext. We have already learned that padding is added to plaintexts to account for the differences in its length, so this concept is not new to us.</p>
+<p>This attack works by exploiting the fact that a server will either return an error or will quickly return a message when the decrypted plaintext has incorrect padding. In contrast, when the server does decrypt a plaintext with a valid padding, it will take some time to send it since the plaintext will be processed by the server.</p>
+<p><em>So what? The attacker still doesn’t have the key so the secret remains to be secret, right?</em>  Well… the attacker still knows the IV and has access to it since it is attached to the beginning of the ciphertext.</p>
+<p>The attacker can modify the IV, passes it to the server where the ciphertext is decrypted and, with some Maths magic, eventually reveal the original plaintext. This is just a hand-wavey explanation since it is beyond the scope of this writeup, but a very important lesson we can learn from this is that any, and just ANY, information that an attacker can modify or glean information about the plaintext or the decryption pipeline can be used to subvert the system. Attackers are clever <del>turds</del> people that can take advantage of a system.</p>
+<h2 id="summary">Summary</h2>
+<p>In summary, we got a more detailed definition for confidentiality, specifically IND-CPA. A block cipher changes a message into an encrypted message; a simple implementation like ECB doesn&rsquo;t meet the requirements to be IND-CPA secure like diffusion and randomness.</p>
+<p>The known vulnerabilities of CBC speaks of the core of cybersecurity: no functioning crypto system is 100% secure. Even though a system may be proven secure on a particular exploit, it doesn’t automatically mean that it will remain secure against other exploits, especially that efforts to subvert crypto systems are always present. Despite the never-ending cat-and-mouse saga between crypto systems and attackers, this competition will, in the end, benefit us all. After all, competition incites innovation.</p>
+
+</div>
+
+            </main>
+        </div>
+        <footer class="footer">
+    &copy; 2024 Perez, Dy, del Castillo, Built with
+    <a href="https://gohugo.io" class="footerLink">Hugo</a> and
+    <a href="https://github.com/akopdev/hugo-theme-rose-pine" class="footerLink">Rose Pine</a> theme
+</footer>
+
+
+
+    </div>
+</body>
+</html>

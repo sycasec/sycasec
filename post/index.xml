@@ -6,8 +6,15 @@
     <description>Recent content in posts on CyberSec Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 22 Feb 2024 20:20:00 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 09 Mar 2024 20:31:16 +0800</lastBuildDate>
     <atom:link href="https://sycasec.github.io/sycasec/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Writeup1</title>
+      <link>https://sycasec.github.io/sycasec/post/writeup1/</link>
+      <pubDate>Sat, 09 Mar 2024 20:31:16 +0800</pubDate>
+      <guid>https://sycasec.github.io/sycasec/post/writeup1/</guid>
+      <description>IND-CPA We should give a slightly more rigorous definition of confidentiality than &amp;lsquo;attacker can&amp;rsquo;t read messages&amp;rsquo; - it&amp;rsquo;s vague especially for partial reveals of information. Thus, confidentiality is defined as ciphertext $C$ should give attacker no new info about message $M$.&#xA;An experiment was made to describe this, which goes along these lines:&#xA;An adversary, Eve, sends two messages $M_0$ and $M_1$ to Alice. Alice flips a coin (in bits, 0 or 1) to choose which message to encrypt and send back to Eve.</description>
+    </item>
     <item>
       <title>Machine Problem 1</title>
       <link>https://sycasec.github.io/sycasec/post/mp1/</link>
