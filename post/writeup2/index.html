@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <link rel="icon" type="image/png" href="/sycasec/hackerman.jpg">
+    <title> Writeup2 | Perez, Dy, del Castillo </title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="generator" content="Hugo 0.124.1">
+
+
+<link rel="canonical" href="https://sycasec.github.io/sycasec/post/writeup2/" >
+<link href="/sycasec/sass/main.min.509d45ddc02a9d663ac9bd60f6ba503ce71ee9454dd9faf2e760ad60cfcd1191.css" rel="stylesheet">
+
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</head>
+
+<body>
+    <div class="flexWrapper">
+        <header class="header">
+    <div class="wrapper">
+        <a href="https://sycasec.github.io/sycasec/">
+            <span class="terminal">hello,friend@cybersec-blog ~ $</span>
+            <span class="cursor"></span>
+        </a>
+        <div class="menu">
+            <input type="checkbox" class="menu-toggle" id="menu-toggle" />
+            <nav class="menu-items">
+                <ul>
+                    
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/about"  title="" >
+                            ~/about</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/notes"  title="" >
+                            ~/notes</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/posts"  title="" >
+                            ~/posts</a>
+                    </li>
+                    
+                </ul>
+            </nav>
+            <label for="menu-toggle" class="menu-trigger">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                </svg>
+            </label>
+        </div>
+    </div>
+</header>
+
+        <div class="content">
+            <main class="main">
+                
+<div class="postWrapper post">
+  <h1>Writeup2</h1>
+  <div class="postMeta">
+    
+    <p>Created: April 15, 2024 at 18:20</p>
+    <p>Last Modified: April 15, 2024 at 18:44</p>
+    
+    <span>
+      Authors: 
+    </span>
+    
+  </div><hr>
+<h1 id="captcha">CAPTCHA</h1>
+<p><em>Does your website resemble a ghost town… for humans? Is your visitor counter mysteriously stuck on &ldquo;0&rdquo; despite having the most <code>fire</code> content on the web? Are you tired of bots feasting on your data like ravenous pigeons on a perfectly good croissant?</em></p>
+<p><em>Then fear not, frustrated friend! Because now there&rsquo;s Completely Automated Public Turing test to tell Computers and Humans Apart, or what we, in the industry call CAPTCHAs – the revolutionary solution to your bot woes! Imagine a world where your servers sing sweet serenades of uptime, unburdened by the relentless clicker-clacker of bot traffic. A world where your content is only enjoyed by real, live, breathing eyeballs! (Well, mostly eyeballs.)</em>
+<em>Don&rsquo;t settle for second-rate bot-blocking solutions. Embrace CAPTCHAs today! (Side effects may include temporary user frustration. But hey, at least it&rsquo;s not bots, right?)</em></p>
+<p>Joking aside, anyone who’s chronically online has definitely encountered this frustrating, annoying, persistent malevolence of a technology that sometimes you just can’t answer correctly.</p>
+<p>Remember when Captchas used to look like this?</p>
+<p><img src="http://geoffliu.files.wordpress.com/2010/04/recaptcha.png" alt="Old CAPTCHA" title="">
+
+Pepperidge Farm remembers.</p>
+<p>Anyway, we were way too young to even understand what exactly these things were trying to accomplish. To young little me (Kyle btw) (and probably to you too), they were just a fun little puzzle to solve before you could access the website, a bit annoying but nothing too serious - I was too excited to tend to my digital pet in Pet Society to care about the implications of these challenges. I never did pay these things much mind, until I encountered captchas like this:</p>
+<figure style="text-align: center;">
+    
+    <img src="venticaptcha.png" alt="genshin CAPTCHA" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>And some more creative ones like these:</p>
+<figure style="text-align: center;">
+    
+    <img src="order.jpg" alt="order CAPTCHA" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<figure style="text-align: center;">
+    
+    <img src="rotate_captcha.png" alt="rotate CAPTCHA" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>So I got really curious. What unspeakable evils are these things really stopping? Is it really worth all the effort from the developer’s side and the user’s side? Is Big CAPTCHA keeping a dark secret right under our noses?</p>
+<h2 id="the-dead-internet-theory">The D̴͇̯̋ě̵̹͙a̴̹̳̎d̶̡͉̑ ̷͍̄I̷̬̮̍n̵͈̣̔́t̵̜̩̋e̴̛͓ŗ̴̖̅ṅ̵̪͜ȅ̴̳ͅt̶̩̀ Theory</h2>
+<p>In Ye Olden Days of Friendster, MySpace, and shady message boards, the internet was <em>the</em> <code>wiki-wiki-wild-wild west</code>.
+Bots roamed free, scraping data, spamming forums, and generally being a nuisance.
+It&rsquo;s in pretty recent memory that engagement farms were a thing, somebody pays a &ldquo;hacker&rdquo; to boost a profile&rsquo;s likes and all of a sudden a lot of unknown people like a post, a profile picture, or a page.
+It was a mess.
+Granted, I no longer have screenshot of these things, but I obviously remember these existing.
+Local pageants that take to facebook for a community favorite with a single entry gaining almost about 40,000 likes and all of them unrelated to the page! It was absurd, and it was a problem.</p>
+<p>Conspiracy theorists would cook up all sorts of stories about how the internet was being taken over by bots, how the bots were going to take over the world, and how the bots were going to steal our data and sell it to the highest bidder.
+Other theories range from the NSA and CIA using bots to influence the way people think from online engagement, to the Chinese government using bots to influence public opinion on certain candidates.</p>
+<p>This is also known as the <em><code>Dead Internet Theory</code></em>. Back when programming was an esoteric career path, nobody really understood how anything worked. The internet was a mysterious, uncharted territory, and all the cool kids hanged out in club penguin.</p>
+<p>The Darknet aside, would somebody think about the identities stolen by bots? Millions of families suffer each year. We need a solution!</p>
+<h2 id="𝕮𝖆𝖕𝖙𝖈𝖍𝖆-𝕯𝖊𝖊𝖟">𝕮𝖆𝖕𝖙𝖈𝖍𝖆 𝕯𝖊𝖊𝖟</h2>
+<p>CAPTCHA, or Completely Automated Public Turing test to tell Computers and Humans Apart, is a system that prevent automated bots from accessing a website or its functionalities by forcing the user (or the bot) to answer one or more challenges. These challenges are designed to make it easy for humans to answer but difficult for bots, at least in theory. It was first developed in the early 2000s when the internet was at its infancy and bots were much simpler. Over the years, however, bots have gotten more sophisticated that they can now subvert a simple CAPTCHA of a distorted text image. Thus, CAPTCHAs evolved and new challenges were created to try and get ahead of the bots. From simple distorted text images, modern CAPTCHAs have evolved into various forms that either require the user to select a bunch of images that match the given description, slide a puzzle piece to complete the image, or to just click a button. Some newer (and questionable) CAPTCHAs even analyze the mouse movements and the cookies of the user—eliminating the need for direct interaction with the CAPTCHA.</p>
+<p>The CAPTCHA system serves a very important role in the internet, not only it protects a website and its infrastructure, but also it ensures the privacy and security of its users. To a ticketing platform, CAPTCHAs block scalpers from buying the tickets and potentially reselling it at a much higher price. To a university portal, it reduces the likelihood of the servers being overwhelmed by bot traffic. To a social media platform, it prevents bots from scraping valuable information about its users and possibly using it for malicious purposes.</p>
+<h2 id="gotta---them-all">Gotta Ⓒⓐⓟⓣⓒⓗⓐ  them all?</h2>
+<figure style="text-align: center;">
+    
+    <img src="sumisu.avif" alt="Agent Smith Scene" style="max-width: 100%; height: auto;">
+    
+    
+    <figcaption>Never send a human to do a machine&#39;s job.</figcaption>
+    
+</figure>
+
+<p>Despite its benefits, CAPTCHAs have also been infamous for its numerous issues and flaws that affect its usability, as well as the user’s security and privacy. Even its effectivity is debatable when considering existing methods to defeat it. On top of usability issues, methods for subverting CAPTCHAs, even the newer ones, have been evolving and improving. Advancements in AI models and computer vision has allowed bots to continuously break existing CAPTCHAs. There may even come a time where all CAPTCHA systems will be broken.</p>
+<p>There are also services that passes the burden of answering these challenges to actual people. A quick Google search yields captcha2cash.org and 2captcha.com as the top 2 results, with the former paying $1 per 1000 captcha solves, an enticing offer especially to residents of third-world countries.</p>
+<p>Even the new CAPTCHA developed by Google that supposedly fixes the issue of usability by analyzing the behavior of the user (or bot) behind the scenes is riddled with security and privacy concerns. By running without the user’s knowledge, Google, a suspicious company to begin with, can collect whatever data they want under the guise of CAPTCHA (well, its not like they are not doing it already with how pervasive they are in the internet).</p>
+<p>Ironically, CAPTCHAs, which are primarily used to deter bots from accessing a website, are also being used to train AI models for Google Maps<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup> and in digitizing archival texts. Thus, by answering these CAPTCHAs, we become their unpaid oblivious annotators. This is yet another quirk of capitalism: <em><code>create the problem, then sell the solution</code></em>.</p>
+<h2 id="just-lemme-in">JUST LEMME IN</h2>
+<p>CAPTCHAs have been known to degrade the overall user experience by breaking the flow of the user when accessing and navigating websites. Google even admitted that some CAPTCHAs are hard to solve. And, from observation, some are just plainly wrong.</p>
+<p>I’m sure you’ve experienced a few such CAPTCHAs where you were asked to select all squares with traffic lights and deliberate whether to include that one square that contains just the corner of the traffic light. Or perhaps you were prompted to select all images of bicycles and, after carefully and patiently doing exactly that, got an invalid answer.  Or maybe you were in the middle of researching something and was interrupted by a random CAPTCHA that caused you to lose your train of thought.</p>
+<p>These scenarios are just few of the many issues that surround the process of answering CAPTCHAs. Sure, they are supposed to protect the websites, the infrastructure, and our data. But what about usability and user convenience? What about those with disabilities that cannot answer these challenges correctly?<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup> How should we balance the economics of security and utility?</p>
+<h2 id="so-what-now">So, what now?</h2>
+<figure style="text-align: center;">
+    
+    <img src="https://media1.tenor.com/m/uBcbvnuP3K0AAAAd/lil-yachty-drake.gif" alt="fix bug plz" style="max-width: 100%; height: auto;">
+    
+    
+    <figcaption>Can we fix it?</figcaption>
+    
+</figure>
+
+<p>From the discussion above, the CAPTCHA system is riddled with unanswered questions and unaddressed problems. Although the internet still stands today even with this flawed system, we should probably address these issues. Or should we?</p>
+<p>Well, as someone (aka Alwyn) who has developed a simple Facebook post scraper within a week, I understand the capabilities of bots and the need to have something that protects us from these malicious programs. Even a rudimentary bot like the one I created can access thousands of pages and fill out and submit hundreds of forms in a matter of minutes. How much more can a more advance bot do!</p>
+<p>Okay. Okay. But how? What should the new and improved system look like? How should it work? Who should lead in its creation?</p>
+<p>Answering all these questions and coming up with a robust system is beyond my abilities as an undergraduate student. However, by considering the questions and problems that was discussed and looking at how the other security measures overcame their challenges, as well as the security principles, we may perhaps get glimpse of what this ideal system would look like.</p>
+<h2 id="the-future-of-captcha">The Future of CAPTCHA</h2>
+<p>First, no company should have the monopoly or sole ownership of this new CAPTCHA. Preferably, it should be open source to ensure that the data collected, if any, is documented and public knowledge. It is interesting that data collected in the current CAPTCHAs are used to digitize archival texts. Although this is not necessarily negative, this use of the collected data should be publicized.</p>
+<p>Second, it should have the least amount of friction and should cater to all kinds of disabilities. Usability is important in the internet and highly prized by the users<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>, thus answering CAPTCHAs shouldn’t be much of a detraction from what the user was previously doing. Current CAPTCHAs, especially on mobile phones, have shown that these challenges can be fun and creative. CAPTCHAs should also be integrated well with existing assistive technology and offer different forms of puzzles that the user can choose whichever they are comfortable answering.</p>
+<p>Third, it should follow Kerckhoff’s principle. Similar to how one-way functions work, where even if the algorithm is public knowledge, the CAPTCHA system should also remain secure even if it becomes open source. As a security system, this aspect is crucial.</p>
+<p>Fourth, following the defense in depth principle, it should be used together with other security measures. No matter how robust this new CAPTCHA would be, we should assume that it would fail. Thus, layering defenses is important to ensure that our system remains secure when the CAPTCHA is subverted.</p>
+<h1 id="references">References</h1>
+<ul>
+<li>Burgess, M. (2017, October 26). <em>Captcha is dying. This is how it’s being reinvented for the AI age</em>. WIRED; WIRED. <a href="https://www.wired.com/story/captcha-automation-broken-history-fix/">https://www.wired.com/story/captcha-automation-broken-history-fix/</a></li>
+<li>Cloudflare. (2024). <em>How CAPTCHAs work | What does CAPTCHA mean?</em> Cloudflare.com. <a href="https://www.cloudflare.com/learning/bots/how-captchas-work/">https://www.cloudflare.com/learning/bots/how-captchas-work/</a></li>
+<li>Waters, S. (2021, May 19). <em>Ho place.w to Solve Captchas—and Why They’ve Gotten So Hard</em>. WIRED; WIRED. <a href="https://www.wired.com/story/im-not-a-robot-why-captchas-hard-to-solve/">https://www.wired.com/story/im-not-a-robot-why-captchas-hard-to-solve/</a></li>
+</ul>
+<p>‌</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>A funny anecdote: when I noticed this years ago, I purposefully answered the second challenge incorrectly to introduce noise in their training data &gt;:)&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p>Can Hawking even pass these challenges?&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p>This is the reason why people are so apprehensive with YouTube’s new ads policy&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+</div>
+
+            </main>
+        </div>
+        <footer class="footer">
+    &copy; 2024 Perez, Dy, del Castillo, Built with
+    <a href="https://gohugo.io" class="footerLink">Hugo</a> and
+    <a href="https://github.com/akopdev/hugo-theme-rose-pine" class="footerLink">Rose Pine</a> theme
+</footer>
+
+
+
+    </div>
+</body>
+</html>

@@ -6,8 +6,15 @@
     <description>Recent content on CyberSec Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 09 Mar 2024 20:31:16 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 15 Apr 2024 18:44:23 +0800</lastBuildDate>
     <atom:link href="https://sycasec.github.io/sycasec/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Writeup2</title>
+      <link>https://sycasec.github.io/sycasec/post/writeup2/</link>
+      <pubDate>Mon, 15 Apr 2024 18:20:10 +0800</pubDate>
+      <guid>https://sycasec.github.io/sycasec/post/writeup2/</guid>
+      <description>CAPTCHA Does your website resemble a ghost town… for humans? Is your visitor counter mysteriously stuck on &amp;ldquo;0&amp;rdquo; despite having the most fire content on the web? Are you tired of bots feasting on your data like ravenous pigeons on a perfectly good croissant?&#xA;Then fear not, frustrated friend! Because now there&amp;rsquo;s Completely Automated Public Turing test to tell Computers and Humans Apart, or what we, in the industry call CAPTCHAs – the revolutionary solution to your bot woes!</description>
+    </item>
     <item>
       <title>Writeup1</title>
       <link>https://sycasec.github.io/sycasec/post/writeup1/</link>

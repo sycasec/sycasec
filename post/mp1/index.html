@@ -3,13 +3,11 @@
 
 <head>
     <link rel="icon" type="image/png" href="/sycasec/hackerman.jpg">
-    <title>
-Machine Problem 1 | Perez, Dy, del Castillo
-</title>
+    <title> Machine Problem 1 | Perez, Dy, del Castillo </title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="generator" content="Hugo 0.123.8">
+<meta name="generator" content="Hugo 0.124.1">
 
 
 <link rel="canonical" href="https://sycasec.github.io/sycasec/post/mp1/" >
@@ -75,13 +73,17 @@ Machine Problem 1 | Perez, Dy, del Castillo
             <main class="main">
                 
 <div class="postWrapper post">
-    <h1>Machine Problem 1</h1>
-    <div class="postMeta">
-        
-        <span>February 22, 2024</span>
-        
-        
-    </div><h1 id="i-aint-readin-allat">I ain&rsquo;t readin allat:</h1>
+  <h1>Machine Problem 1</h1>
+  <div class="postMeta">
+    
+    <p>Created: February 22, 2024 at 20:20</p>
+    <p>Last Modified: February 22, 2024 at 20:20</p>
+    
+    <span>
+      Authors: 
+    </span>
+    
+  </div><h1 id="i-aint-readin-allat">I ain&rsquo;t readin allat:</h1>
 <ul>
 <li>we break at <code>0x56556191</code> (<code>ret</code> from <code>vuln</code>) to observe behavior of <code>eip</code></li>
 <li>following the suggested information-giving commands in <code>gdb</code>, we get the desirable <code>esp</code> in vuln being <code>0xffffcdf8</code></li>
@@ -133,14 +135,18 @@ Machine Problem 1 | Perez, Dy, del Castillo
 <p>And with that,</p>
 <h1 id="know-thy-enemy">Know thy enemy</h1>
 <p>Let&rsquo;s first take a look at the instructions for <code>main</code> and <code>vuln</code>:</p>
-<p><figure class="centered"><img src="main.png" width="400"/><figcaption>
-            <h4>main.png</h4>
-        </figcaption>
+<p><figure style="text-align: center;">
+    
+    <img src="main.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
-<figure class="centered"><img src="vuln.png" width="400"/><figcaption>
-            <h4>vuln.png</h4>
-        </figcaption>
+<figure style="text-align: center;">
+    
+    <img src="vuln.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 </p>
 <p>Then, we define <code>hook-stop</code> to allow us to view the next 1 instruction on the <code>eip</code>, and 16 words starting from the <code>esp</code> register. This is gonna give us an upside-down view of the stack starting from the <code>$esp</code> register. This is beneficial to us since the <code>$esp</code> is pointed to the very bottom of the current stack frame, allowing us to see the contents of the current frame being executed.</p>
@@ -167,19 +173,35 @@ Machine Problem 1 | Perez, Dy, del Castillo
                                          stuff             │
                               ---------------------------  ╯
 </code></pre><p>We can see main allocating its own stack frame in the next instruction, by moving <code>ebp</code> to <code>esp</code></p>
-<figure class="centered"><img src="main-alloc.png" width="600"/>
+<figure style="text-align: center;">
+    
+    <img src="main-alloc.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>we can confirm this by getting information on the stack frame with <code>info frame</code></p>
-<figure class="centered"><img src="info-frame.png" width="500"/>
+<figure style="text-align: center;">
+    
+    <img src="info-frame.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>As we saw in <code>dissassemble main</code> above, the next instruction is to <code>call &lt;vuln&gt;</code>. Let&rsquo;s single step and and view our registers to confirm that main’s stack frame is indeed in <code>0xffffcdf8</code>:</p>
-<figure><img src="view-reg.png" width="500"/>
+<figure style="text-align: center;">
+    
+    <img src="view-reg.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>Both <code>esp</code> and <code>ebp</code> at this point are at <code>0xffffcdf8</code> because main isn’t allocating any variables. The next instructions are to <code>call &lt;vuln&gt;</code> and allocate stack frame for <code>vuln</code>. lets move to <code>vuln &lt;+1&gt;</code> and look at the stack.</p>
-<figure><img src="stack-anl.png" width="600"/>
+<figure style="text-align: center;">
+    
+    <img src="stack-anl.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>Lets analyze it a bit *(edited for clarity):</p>
@@ -208,19 +230,35 @@ Machine Problem 1 | Perez, Dy, del Castillo
 <li><code>call 0xf7c741b0</code>       :  →  call <code>&lt;_IO_gets&gt;</code> (<code>gets()</code>) subroutine</li>
 </ul>
 <p>We can confirm these are exactly what the program is going to do by checking registers now:</p>
-<figure><img src="info-reg-agn.png" width="450"/>
+<figure style="text-align: center;">
+    
+    <img src="info-reg-agn.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>We move a single step and review the registers:</p>
-<figure><img src="info-reg-2.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="info-reg-2.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>The <code>esp</code> and <code>ebp</code> are now the same because of the <code>mov %esp,%ebp</code> instruction. Remember that the instruction shown by the command <code>x/1i $eip</code> in <code>gdb</code> is the <strong>next</strong> instruction, not the current one executed. Anyway, let&rsquo;s push on while keeping a close eye at the stack:</p>
-<figure><img src="lea.png" width="650"/>
+<figure style="text-align: center;">
+    
+    <img src="lea.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>Since our <code>hook-stop</code> was defined to view 16 words from the esp, we can see that the instruction <code>&lt;vuln+6&gt;:	lea    -0x8(%ebp),%eax</code> did allocate 8 bytes for <code>buffer[8]</code>. To further confirm this, lets print the location of <code>buffer</code> now with <code>print &amp;buffer</code>:</p>
-<figure><img src="buffer.png" width="300"/>
+<figure style="text-align: center;">
+    
+    <img src="buffer.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>In case it wasn’t obvious, our view of the stack printing from the <code>$esp</code> register gives us an inverted view of the stack, where the memory addresses increase as we go down.</p>
@@ -229,25 +267,45 @@ Machine Problem 1 | Perez, Dy, del Castillo
 <li>at address <code>0xffffcdf0</code> → <code>0xffffcdf4</code> that the address <code>0xffffcdf8</code> is stored, which should be our <code>sfp (old ebp)</code></li>
 <li>right next to it is the <code>rip (old eip)</code> (yes it is <code>5655619a</code>), storing where the <code>eip</code> should continue execution. Looking at our <code>disas main</code>, that is the instruction right after <code>call vuln</code></li>
 </ul>
-<figure><img src="main.png" width="400"/>
+<figure style="text-align: center;">
+    
+    <img src="main.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <h1 id="what-do-we-do-now">What do we do now?</h1>
 <p>First, lets grab our shell code:</p>
 <h2 id="ghost-in-the-egg-shell">Ghost in the (egg) Shell</h2>
 <p>The provided asm doesnt really compile on my end, even with the provided incantation</p>
-<p><figure><img src="asm.png" width="330"/>
+<p><figure style="text-align: center;">
+    
+    <img src="asm.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
-<figure><img src="failure.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="failure.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 </p>
 <p>So let’s do what any decent “<em>hacker</em>” would  do and look for it online. The glory days of insecure software have been long gone, so surely there is a myriad of old, low-level exploits online. The site that struck out to me immediately after searching for the keyword <code>shell codes</code> in google is:</p>
-<figure><img src="elgoog.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="elgoog.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>ofc, because i&rsquo;m lazy:
-<figure><img src="shellstorm.png" width="450"/>
+<figure style="text-align: center;">
+    
+    <img src="shellstorm.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 </p>
 <div class="highlight"><div class="chroma">
@@ -346,7 +404,11 @@ Machine Problem 1 | Perez, Dy, del Castillo
 </div><p>Now I can tell you that I <em>know</em> what exactly it is doing given these commands, but I can’t really explain why. I looked through the <a href="https://cdrdv2-public.intel.com/671110/325383-sdm-vol-2abcd.pdf">intel developer’s manual</a> but I can’t really find an explanation as to why setting <code>eax = 1</code> results in the <code>syscall exit</code>, or why it looks at <code>ebx</code> to provide the exit code, or why <code>cd 80 (int $0x80)</code> results in an interrupt. So for now let’s just press the <strong>i believe</strong> button on this and press on.</p>
 <h2 id="rip-and-tear"><code>rip</code> and tear</h2>
 <p>The call to <code>gets()</code> in the next instruction allows us to write into the start of buffer, <code>0xffffcde8</code> and beyond.</p>
-<figure><img src="annotated.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="annotated.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <ul>
@@ -361,7 +423,11 @@ Machine Problem 1 | Perez, Dy, del Castillo
 </li>
 <li>
 <p>since we can write to higher memory addresses anyway, we can just redirect <!-- raw HTML omitted -->rip<!-- raw HTML omitted --> to <code>0xffffcdf8</code> where the rest of our shell code would be located anyway
-<figure><img src="arrow.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="arrow.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 </p>
 <ul>
@@ -434,7 +500,11 @@ Machine Problem 1 | Perez, Dy, del Castillo
 </ul>
 <p>now let’s rerun <code>vuln</code> with the payload automatically inserted when it asks for input with <code>r &lt; payload</code></p>
 <p>I set a break point at the part right before the <code>esp</code> is incremented to deallocate the stack frame for <code>vuln</code>, so we can look at the stack from the esp at that point:</p>
-<figure><img src="pointbreak.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="pointbreak.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>as we can see, the buffer starting at <code>0xffffcde8</code> already has the <code>exit(1)</code> shell code. It has been padded with a <code>nop</code> (<code>\x90</code>), but that will be fine since its in little-endian format. The <code>rip</code> at <code>0xffffcdf4</code> has also been redirected to  <code>0xffffcde8</code>, which will be executed (since we turned off write/execute protection in our compiler flags).</p>
@@ -443,30 +513,54 @@ Machine Problem 1 | Perez, Dy, del Castillo
 <li><code>0x56556190 &lt;+19&gt;:	leave</code> → move <code>esp</code> to <code>ebp</code> and pop <code>sfp</code> (which we have set to <code>0x90909090</code>) making the <code>ebp</code> store <code>0x90909090</code>. we can confirm this in the next instruction when we look at <code>info registers</code>.</li>
 <li><code>0x56556191 &lt;+20&gt;:	ret</code> → pop <code>rip</code> and continue execution.</li>
 </ul>
-<figure><img src="redbox.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="redbox.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>Now that we have <code>ret</code>urned from <code>vuln</code>, since we have changed <code>rip</code> we can see that it is now executing from our buffer, <code>0xffffcde8</code>. If you can recall, we have defined <code>hook-stop</code> to show us the next instruction in <code>eip</code> and the next 16 words from <code>esp</code>. Of course, the esp is in <code>0xffffcdf8</code> since the esp was incremented a while ago, so we cant really see anything of value there.</p>
 <p>So let’s take a look at the stack by printing the next 16 words from the address of our buffer, <code>0xffffcde8</code>:</p>
-<p><figure><img src="bufaddr.png" width="550"/>
+<p><figure style="text-align: center;">
+    
+    <img src="bufaddr.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 Let’s also take a look at what the next 5 instructions are:
-<figure><img src="5ins.png" width="250"/>
+<figure style="text-align: center;">
+    
+    <img src="5ins.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 </p>
 <p>And what do you know, our shell code worked! We’re deadset on a homerun and the only thing that’s stopping us is <code>ctrl + c</code>. Of course, we’re not stopping now. We’ll continue execution. But before that, i claimed that the <code>ebp</code> will be set to <code>x90909090</code> a while ago. Lets take a look at our registers now.</p>
-<figure><img src="registered.png" width="390"/>
+<figure style="text-align: center;">
+    
+    <img src="registered.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>Hell yeah. Let’s continue execution with <code>c</code> and look at the glorious exit code.</p>
-<figure><img src="exit1.png" width="390"/>
+<figure style="text-align: center;">
+    
+    <img src="exit1.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>and just like that, snipe method worked just fine.</p>
 <h3 id="matrix-method">Matrix method</h3>
 <p>To recap:</p>
-<figure><img src="arrow.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="arrow.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>The plan is to:</p>
@@ -518,7 +612,11 @@ Let’s also take a look at what the next 5 instructions are:
 </div><p>Our final <code>payload</code> should look like something like this in bytes:
 <code>\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90 \xe8\xcd\xff\xff \x31\xc0\x40\x89\xc3\xcd\x80</code></p>
 <p>Without further ado, let’s rerun <code>vuln</code> with our payload.</p>
-<figure><img src="shellcoded.png" width="650"/>
+<figure style="text-align: center;">
+    
+    <img src="shellcoded.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>I skipped over the initial things, I believe I don’t need to explain those anymore. As we can see here:</p>
@@ -528,15 +626,27 @@ Let’s also take a look at what the next 5 instructions are:
 <li><!-- raw HTML omitted -->0xffffcdf8<!-- raw HTML omitted --> up until <code>0xffffcdff</code> contains our <code>exit(1)</code> shell code.</li>
 </ul>
 <p>Let’s skip to <code>ret</code> and single step from here just to view it more closely:</p>
-<figure><img src="skiptoret.png" width="550"/>
+<figure style="text-align: center;">
+    
+    <img src="skiptoret.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>And there you go, we are already executing <code>exit(1)</code>. Just to confirm, let’s view the next 5 instructions in the <code>eip</code>:</p>
-<figure><img src="another5ins.png" width="270"/>
+<figure style="text-align: center;">
+    
+    <img src="another5ins.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>And that’s that. Lets continue and get our sweet sweet <code>exited with code 01</code></p>
-<figure><img src="exit2.png" width="400"/>
+<figure style="text-align: center;">
+    
+    <img src="exit2.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>Now that we have a reliable way to insert longer shell code, lets try <code>execve(&quot;/bin/bash&quot;)</code></p>
@@ -699,7 +809,11 @@ Let’s also take a look at what the next 5 instructions are:
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>Now lets rerun <code>vuln</code> with our shiny, brand-new payload:</p>
-<p><figure><img src="execve.png" width="600"/>
+<p><figure style="text-align: center;">
+    
+    <img src="execve.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 As usual:</p>
@@ -709,14 +823,26 @@ As usual:</p>
 <li><!-- raw HTML omitted -->green <!-- raw HTML omitted --> is our shell code , with the <!-- raw HTML omitted -->orange <!-- raw HTML omitted -->part showing the last 4 bytes, ending with the <code>interrupt</code> of course.</li>
 </ul>
 <p>We continue and take a look at what is going on with the <code>eip</code>. Since we have 12 instructions in the <code>asm</code> version of the shell code, lets take a look at the next 12 instructions of our <code>eip</code>:</p>
-<p><figure><img src="actualexecsi.png" width="650"/>
+<p><figure style="text-align: center;">
+    
+    <img src="actualexecsi.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
-<figure><img src="execsi.png" width="300"/>
+<figure style="text-align: center;">
+    
+    <img src="execsi.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 </p>
 <p>That’s our <code>execve</code> shell code! Anyway, lets continue from here:</p>
-<figure><img src="binbash.png" width="450"/>
+<figure style="text-align: center;">
+    
+    <img src="binbash.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <p>We can see that its executing <code>/usr/bin/bash</code>, because <code>/bin/bash</code> is just a <code>symlink</code>. Anyway, now we have what they call arbitrary code execution – sort of. I can’t really get this to run in the terminal, even when I disable Address space layout randomization (<em>ASLR</em>) for <code>vuln</code>. I suspect it might have something to do with having a different memory address as compared to running it in <code>gdb</code>, but that’s already outside the scope of this machine problem, so I believe that’s the end of this writeup.</p>

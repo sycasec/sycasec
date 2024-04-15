@@ -3,13 +3,11 @@
 
 <head>
     <link rel="icon" type="image/png" href="/sycasec/hackerman.jpg">
-    <title>
-Writeup1 | Perez, Dy, del Castillo
-</title>
+    <title> Writeup1 | Perez, Dy, del Castillo </title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="generator" content="Hugo 0.123.8">
+<meta name="generator" content="Hugo 0.124.1">
 
 
 <link rel="canonical" href="https://sycasec.github.io/sycasec/post/writeup1/" >
@@ -75,13 +73,17 @@ Writeup1 | Perez, Dy, del Castillo
             <main class="main">
                 
 <div class="postWrapper post">
-    <h1>Writeup1</h1>
-    <div class="postMeta">
-        
-        <span>March 9, 2024</span>
-        
-        
-    </div><hr>
+  <h1>Writeup1</h1>
+  <div class="postMeta">
+    
+    <p>Created: March 9, 2024 at 20:31</p>
+    <p>Last Modified: March 9, 2024 at 20:31</p>
+    
+    <span>
+      Authors: 
+    </span>
+    
+  </div><hr>
 <h1 id="ind-cpa">IND-CPA</h1>
 <script type="text/javascript" async
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -175,10 +177,18 @@ Writeup1 | Perez, Dy, del Castillo
 $$ Decrypt(C, K) \rightarrow M$$</p>
 <p>AES, the most common of these algorithms, fixes the block size to 128 bits. If you&rsquo;d want a message longer than 128 bits, well&hellip;there are different modes of operations on how to process that. ECB, or Electronic Code Book, is one of those.</p>
 <p>ECB is considered as the simplest block cipher mode of operation - it divides a message into 128-bit blocks (under AES), each passing through the block cipher using the agreed on key to encrypt each block. These blocks would be stitched together to form the ciphertext, and the reverse is true for decryption.</p>
-<p><figure class="centered"><img src="ecb_enc_white.png" width="700"/>
+<p><figure style="text-align: center;">
+    
+    <img src="ecb_enc_white.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
-<figure class="centered"><img src="ecb_dec_white.png" width="700"/>
+<figure style="text-align: center;">
+    
+    <img src="ecb_dec_white.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 </p>
 <h2 id="so-lets-look-at-how-this-isnt-ind-cpa-secure">So let&rsquo;s look at how this isn&rsquo;t IND-CPA secure.</h2>
@@ -198,7 +208,11 @@ $$ Decrypt(C, K) \rightarrow M$$</p>
 <li>Block Dependency - each block should be dependent on the encryption of the previous block, to make it computationally infeasible to predict the ciphertext without the key</li>
 </ul>
 <h2 id="alternative-modes-that-are-ind-cpa-secure">Alternative Modes that are IND-CPA secure</h2>
-<figure class="centered"><img src="blockchain.png" width="700"/>
+<figure style="text-align: center;">
+    
+    <img src="blockchain.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <blockquote>
@@ -226,7 +240,11 @@ The modes that use these 3 methods are:</p>
 <li>Since Eve can’t just simply compare the ciphertexts, she has no way of knowing which plaintext corresponds to the ciphertext she received at (2). Thus, Eve is defeated</li>
 </ol>
 <h4 id="is-cbc-fully-secure">Is CBC fully secure?</h4>
-<figure class="centered"><img src="hackerman.png" width="700"/>
+<figure style="text-align: center;">
+    
+    <img src="hackerman.png" alt="" style="max-width: 100%; height: auto;">
+    
+    
 </figure>
 
 <blockquote>
