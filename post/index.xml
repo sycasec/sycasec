@@ -2,45 +2,52 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>posts on CyberSec Blog</title>
-    <link>https://sycasec.github.io/sycasec/post/</link>
+    <link>http://localhost:1313/sycasec/post/</link>
     <description>Recent content in posts on CyberSec Blog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 15 Apr 2024 22:07:20 +0800</lastBuildDate>
-    <atom:link href="https://sycasec.github.io/sycasec/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 30 Apr 2024 13:41:19 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/sycasec/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Machine Problem 3</title>
+      <link>http://localhost:1313/sycasec/post/mp3/</link>
+      <pubDate>Tue, 30 Apr 2024 13:41:19 +0800</pubDate>
+      <guid>http://localhost:1313/sycasec/post/mp3/</guid>
+      <description>Web Application Vulnerabilities TL;DR Attacks:&#xA;SQL Injection (login, sesion token) Stored XSS attack CSRF Attack (form) Fixes:&#xA;Query Parameterization Sanitization (replace &amp;lsquo;&amp;lt;&amp;rsquo;:&amp;rsquo;&amp;amp;lt&amp;rsquo;, &amp;lsquo;&amp;gt;&amp;rsquo;:&amp;rsquo;&amp;amp;gt&amp;rsquo;) CSRF Token Rate Limiting (disallow brute force) click me for repo link to patched-app&#xA;Attacks Just the tip (basic login SQL injection) After starting up the service, we are greeted with a simple login page. One look at this login page and you can tell that this website’s TOTALLY asking for it.</description>
+    </item>
     <item>
       <title>Writeup2</title>
-      <link>https://sycasec.github.io/sycasec/post/writeup2/</link>
+      <link>http://localhost:1313/sycasec/post/writeup2/</link>
       <pubDate>Mon, 15 Apr 2024 18:20:10 +0800</pubDate>
-      <guid>https://sycasec.github.io/sycasec/post/writeup2/</guid>
+      <guid>http://localhost:1313/sycasec/post/writeup2/</guid>
       <description>CAPTCHA Does your website resemble a ghost town… for humans? Is your visitor counter mysteriously stuck on &amp;ldquo;0&amp;rdquo; despite having the most fire content on the web? Are you tired of bots feasting on your data like ravenous pigeons on a perfectly good croissant?&#xA;Then fear not, frustrated friend! Because now there&amp;rsquo;s Completely Automated Public Turing test to tell Computers and Humans Apart, or what we, in the industry call CAPTCHAs – the revolutionary solution to your bot woes!</description>
     </item>
     <item>
       <title>Writeup1</title>
-      <link>https://sycasec.github.io/sycasec/post/writeup1/</link>
+      <link>http://localhost:1313/sycasec/post/writeup1/</link>
       <pubDate>Sat, 09 Mar 2024 20:31:16 +0800</pubDate>
-      <guid>https://sycasec.github.io/sycasec/post/writeup1/</guid>
+      <guid>http://localhost:1313/sycasec/post/writeup1/</guid>
       <description>IND-CPA We should give a slightly more rigorous definition of confidentiality than &amp;lsquo;attacker can&amp;rsquo;t read messages&amp;rsquo; - it&amp;rsquo;s vague especially for partial reveals of information. Thus, confidentiality is defined as ciphertext $C$ should give attacker no new info about message $M$.&#xA;An experiment was made to describe this, which goes along these lines:&#xA;An adversary, Eve, sends two messages $M_0$ and $M_1$ to Alice. Alice flips a coin (in bits, 0 or 1) to choose which message to encrypt and send back to Eve.</description>
     </item>
     <item>
       <title>Machine Problem 1</title>
-      <link>https://sycasec.github.io/sycasec/post/mp1/</link>
+      <link>http://localhost:1313/sycasec/post/mp1/</link>
       <pubDate>Thu, 22 Feb 2024 20:20:00 +0800</pubDate>
-      <guid>https://sycasec.github.io/sycasec/post/mp1/</guid>
+      <guid>http://localhost:1313/sycasec/post/mp1/</guid>
       <description>I ain&amp;rsquo;t readin allat: we break at 0x56556191 (ret from vuln) to observe behavior of eip following the suggested information-giving commands in gdb, we get the desirable esp in vuln being 0xffffcdf8 we try to craft the shell code compiling the given asm with necessary incantations fails we look for an exit one shell code in shell-storm we analyze shell code \x90 * 12 for padding \xf8\xcd\xff\xff redirecting our eip \x31\xc0\x40\x89\xc3\xcd\x80 exit one shell code we also try inserting an execve(&amp;quot;/bin/bash&amp;quot;) shell code (ofc from shell-storm) $$$ profit exit one shell code full:</description>
     </item>
     <item>
       <title>Writeup0</title>
-      <link>https://sycasec.github.io/sycasec/post/writeup0/</link>
+      <link>http://localhost:1313/sycasec/post/writeup0/</link>
       <pubDate>Fri, 09 Feb 2024 23:17:32 +0800</pubDate>
-      <guid>https://sycasec.github.io/sycasec/post/writeup0/</guid>
+      <guid>http://localhost:1313/sycasec/post/writeup0/</guid>
       <description>Any decent (or old) cybersecurity expert knows about Kevin Mitnick. Famous for many of his early exploits, Mitnick is a black-hat turned white-hat hacker. Born in 1963, Mitnick’s first hack was at age 12, convincing a bus driver to tell him where he could get his own ticket puncher for “a school project”. He then looked for blank LA bus transfer tickets in dumpsters, using the punch machine to get unlimited, free rides.</description>
     </item>
     <item>
       <title>SamplePost</title>
-      <link>https://sycasec.github.io/sycasec/post/samplepost/</link>
+      <link>http://localhost:1313/sycasec/post/samplepost/</link>
       <pubDate>Thu, 01 Feb 2024 15:24:13 +0800</pubDate>
-      <guid>https://sycasec.github.io/sycasec/post/samplepost/</guid>
+      <guid>http://localhost:1313/sycasec/post/samplepost/</guid>
       <description>Hello This is sample Post.&#xA;gyatt</description>
     </item>
   </channel>

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head><script src="/sycasec/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=sycasec/livereload" data-no-instant defer></script>
+    <link rel="icon" type="image/png" href="/sycasec/hackerman.jpg">
+    <title> Machine Problem 3 | del Castillo, Dy, Perez </title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="generator" content="Hugo 0.125.4">
+
+
+<link rel="canonical" href="http://localhost:1313/sycasec/post/mp3/" >
+<link href="/sycasec/sass/main.min.509d45ddc02a9d663ac9bd60f6ba503ce71ee9454dd9faf2e760ad60cfcd1191.css" rel="stylesheet">
+
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</head>
+
+<body>
+    <div class="flexWrapper">
+        <header class="header">
+    <div class="wrapper">
+        <a href="http://localhost:1313/sycasec/">
+            <span class="terminal">hello,friend@cybersec-blog ~ $</span>
+            <span class="cursor"></span>
+        </a>
+        <div class="menu">
+            <input type="checkbox" class="menu-toggle" id="menu-toggle" />
+            <nav class="menu-items">
+                <ul>
+                    
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/about"  title="" >
+                            ~/about</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/notes"  title="" >
+                            ~/notes</a>
+                    </li>
+                    
+                    <li>
+                     
+                      
+                      
+                        <a href="/sycasec/posts"  title="" >
+                            ~/posts</a>
+                    </li>
+                    
+                </ul>
+            </nav>
+            <label for="menu-toggle" class="menu-trigger">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                </svg>
+            </label>
+        </div>
+    </div>
+</header>
+
+        <div class="content">
+            <main class="main">
+                
+<div class="postWrapper post">
+  <h1>Machine Problem 3</h1>
+  <div class="postMeta">
+    
+    <p>Created: April 30, 2024 at 13:41</p>
+    <p>Last Modified: April 30, 2024 at 13:41</p>
+    
+    <span>
+      Authors:  Joe Mama 
+    </span>
+    
+  </div><hr>
+<h1 id="web-application-vulnerabilities">Web Application Vulnerabilities</h1>
+<h2 id="tldr">TL;DR</h2>
+<p>Attacks:</p>
+<ul>
+<li>SQL Injection (login, sesion token)</li>
+<li>Stored XSS attack</li>
+<li>CSRF Attack (form)</li>
+</ul>
+<p>Fixes:</p>
+<ul>
+<li>Query Parameterization</li>
+<li>Sanitization (replace &lsquo;&lt;&rsquo;:&rsquo;&amp;lt&rsquo;, &lsquo;&gt;&rsquo;:&rsquo;&amp;gt&rsquo;)</li>
+<li>CSRF Token</li>
+<li>Rate Limiting (disallow brute force)</li>
+</ul>
+<p><a href="https://github.com/sycasec/mp3-vuln-app">click me for repo link to patched-app</a></p>
+<h2 id="attacks">Attacks</h2>
+<h3 id="just-the-tip-basic-login-sql-injection">Just the tip (basic login SQL injection)</h3>
+<p>After starting up the service, we are greeted with a simple login page.
+One look at this login page and you can tell that this website’s TOTALLY <em>asking for it</em>.
+Look at that sweet login form. It needs to be broken in with some <em>Big Bad Code</em> (injection). So lets put <strong>just the tip</strong> in first:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-SQL" data-lang="SQL"><span class="line"><span class="cl"><span class="s1">&#39;OR 1=1--
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Recalling our <code>SQL Injection</code> lecture that for vulnerable websites that naively fetch a single user using direct-input query, we can force a login by making the query return <em>at least one</em> entry.</p>
+<figure style="text-align: center;">
+    
+    <img src="init.png" alt="starting point" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>We click login:</p>
+<figure style="text-align: center;">
+    
+    <img src="login_success.png" alt="sql injected" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>Now that we&rsquo;re here, lets do a little bit of trolling.</p>
+<h3 id="xss-attack">XSS Attack!</h3>
+<p>We can try a nifty little exploit to test if our inputs are being sanitized:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="s2">&#34;XSS attack!&#34;</span><span class="p">)&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We hit post, and:</p>
+<figure style="text-align: center;">
+    
+    <img src="stored_xss.png" alt="starting point" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>We can also do something a little more evil, like</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;/logout&#34;</span><span class="p">/&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>which effectively sends a valid <code>GET</code> request to the logout endpoint. After clicking post:</p>
+<figure style="text-align: center;">
+    
+    <img src="xss_logout.png" alt="logout request" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>Immediately getting kicked out of the site is kind of annoying though, and we dont really have any way of deleting posts, so lets just wipe those from the database directly.</p>
+<h3 id="csrf-attack">CSRF Attack!</h3>
+<p>We also can do a little bit of trolling from the outside, like a CSRF attack, like so:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    Sample CSRF Attack
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">form</span>
+</span></span><span class="line"><span class="cl">      <span class="na">id</span><span class="o">=</span><span class="s">&#34;evilform&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="na">name</span><span class="o">=</span><span class="s">&#34;evilform&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="na">action</span><span class="o">=</span><span class="s">&#34;http://127.0.0.1:5000/posts&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="na">method</span><span class="o">=</span><span class="s">&#34;POST&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="na">target</span><span class="o">=</span><span class="s">&#34;popup&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;hidden&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;message&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;CSRF Attack!&#34;</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;button&#34;</span> <span class="na">onclick</span><span class="o">=</span><span class="s">&#34;submitForm()&#34;</span><span class="p">&gt;</span>Launch Attack<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">function</span> <span class="nx">submitForm</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kr">const</span> <span class="nx">newWindow</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="s2">&#34;popup&#34;</span><span class="p">,</span> <span class="s2">&#34;width=200,height=200&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&#34;evilform&#34;</span><span class="p">).</span><span class="nx">submit</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>which looks like this:
+<figure style="text-align: center;">
+    
+    <img src="CSRF_html.png" alt="sample csrf" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+</p>
+<p>Executing the attack:</p>
+<figure style="text-align: center;">
+    
+    <img src="csrf_attack.gif" alt="hell yeah" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<h3 id="session-token-sql-injection">Session Token SQL Injection</h3>
+<p>Since there was not much else we could do, taking a look at the code reveals a vulnerable session token query - which we can exploit. First, we must make sure that the session token in the database is not deleted, which means we cannot send a <code>GET</code> request to the <code>logout</code> endpoint.
+What we do is delete the <code>session_token</code> cookie stored in our browser and reload the site - this way we get logged out without having the <code>session_token</code> stored in the database deleted.</p>
+<p>In a realistic scenario, we can just assume that we are trying to login to an account of a user that&rsquo;s current logged in. Anyway, lets do that attack now - similar to our basic <code>SQL injection</code> payload, we craft a <code>session_token</code> cookie in our browser:</p>
+<figure style="text-align: center;">
+    
+    <img src="session_token_inject.png" alt="session token inject" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>We reload this to send the cookie, and just like that:</p>
+<figure style="text-align: center;">
+    
+    <img src="session_token_login.png" alt="session token login" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<h2 id="fixes">Fixes</h2>
+<h3 id="heading">????????????</h3>
+<p>Literally <code>?</code> or parameterization saves us from <code>SQL</code> injection, like so:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># parameterize session tokens</span>
+</span></span><span class="line"><span class="cl"><span class="n">res</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;SELECT username FROM users INNER JOIN sessions ON &#34;</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">+</span> <span class="s2">&#34;users.id = sessions.user WHERE sessions.token = ?&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;session_token&#34;</span><span class="p">)])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We apply this to every SQL query made. The fully patched code is located <a href="https://github.com/sycasec/mp3-vuln-app">here</a></p>
+<h3 id="bleach">Bleach</h3>
+<p>Literally just swap out croccy symbols. We use a helper function <code>sanitize</code> like so:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">sanitize</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">({</span><span class="s1">&#39;&lt;&#39;</span><span class="p">:</span><span class="s2">&#34;&amp;lt&#34;</span><span class="p">,</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span><span class="s2">&#34;&amp;gt&#34;</span><span class="p">}))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#.... /posts route code goes here ....</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;INSERT INTO posts (message, user) VALUES (?,?);&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="p">[</span><span class="n">sanitize</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s2">&#34;message&#34;</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+</span></span><span class="line"><span class="cl">    <span class="n">con</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><!-- raw HTML omitted -->
+<h3 id="not-today-sir-csrf-only">Not today sir, CSRF only</h3>
+<p>We can simply implement a CSRF Token to disable these kinds of attacks like so:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># /home route code goes here....</span>
+</span></span><span class="line"><span class="cl"><span class="n">user</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">user</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Generate CSRF Token</span>
+</span></span><span class="line"><span class="cl">    <span class="n">csrf_token</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">res</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;SELECT message FROM posts WHERE user =&#39;&#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&#34;&#39;;&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">posts</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">resp</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">render_template</span><span class="p">(</span><span class="s2">&#34;home.html&#34;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">user</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">posts</span><span class="o">=</span><span class="n">posts</span><span class="p">,</span> <span class="n">csrf_token</span><span class="o">=</span><span class="n">csrf_token</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">resp</span><span class="o">.</span><span class="n">set_cookie</span><span class="p">(</span><span class="s2">&#34;csrf_token&#34;</span><span class="p">,</span> <span class="n">csrf_token</span><span class="p">,</span> <span class="n">httponly</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">resp</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Following the advise of our wise elders, we generate a CSRF token everytime our user fetches a form, and we send it as a cookie to them and also place it as a hidden input in our form code:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Welcome, {{username}}!<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;/logout&#34;</span><span class="p">&gt;</span>Logout<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">h3</span><span class="p">&gt;</span>Posts<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">form</span> <span class="na">method</span><span class="o">=</span><span class="s">&#34;post&#34;</span> <span class="na">action</span><span class="o">=</span><span class="s">&#34;/posts&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;message&#34;</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;hidden&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;csrf_token&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;{{ csrf_token }}&#34;</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;submit&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;Post!&#34;</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>and of course we check for the CSRF token when a <code>POST</code> request is made to the <code>/posts</code> route:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s2">&#34;/posts&#34;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;POST&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@limiter.limit</span><span class="p">(</span><span class="s2">&#34;2/second&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">posts</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;session_token&#34;</span><span class="p">)</span> <span class="ow">and</span> 
+</span></span><span class="line"><span class="cl">        <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;csrf_token&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;csrf_token&#34;</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># the rest of the /post route code goes here...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We didn&rsquo;t really change much of the code in the app after this, so a valid POST request is made resulting in a <code>302 FOUND</code> response, but it doesn&rsquo;t get past the <code>csrf_token</code> check so nothing is done beyond that.</p>
+<!-- raw HTML omitted -->
+<h3 id="you-are-blocked">You are blocked!!</h3>
+<p>To make this MP more <del>complicated</del> interesting, we can add a simple rate limiter on the number of login attempts a user can do. This increases the security of our web app by preventing attackers from brute forcing the login page.</p>
+<p>For the sake of not reinventing the wheel, we will use the Flask Limiter extension. The simplest setup (yoinked from the <a href="https://flask-limiter.readthedocs.io/en/stable/">documentation</a>) is enough for this MP. The limits <code>1/second</code>, <code>10/hour</code>,  and <code>100/day</code> are used in the login page to demonstrate the defense-in-depth principle. We will also add a <code>2/second</code> rate limiter to the <code>posts</code> API for funsies.</p>
+<p>When a user (potentially an attacker) exceeds this limit, they will get the following errors and won’t be able to make requests until some time has passed.</p>
+<figure style="text-align: center;">
+    
+    <img src="MP3%20writeup-20240501070954452.webp" alt="rate limit error" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<figure style="text-align: center;">
+    
+    <img src="MP3%20writeup-20240501071021422.webp" alt="rate limit error" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<figure style="text-align: center;">
+    
+    <img src="MP3%20writeup-20240501071136899.webp" alt="rate limit error" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>To determine whether this security measure is actually working, we need to test it with other devices. Unfortunately, using <code>flask run</code> won’t allow other devices to connect to our server, even if we expose port 5000 in our Firewall. Although this is <a href="https://flask.palletsprojects.com/en/3.0.x/quickstart/#public-server">not recommended</a>, we can just simply run flask with <code>flask run --host=0.0.0.0</code> while still exposing port 5000 in our Firewall. With this, we can now test it with other devices.</p>
+<figure style="text-align: center;">
+    
+    <img src="MP3%20writeup-20240501071434864.webp" alt="rate limit error" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<h1 id="conclusion">Conclusion</h1>
+<p><em>edit or add lang sad diri</em>
+Notice that much of the exploits stem from not sanitizing user inputs. Although this is Web Security 101, popular platforms can still fail to implement this. For example, the infamous self-retweeting tweet in 2014 that exploited this vulnerability of TweetDeck using an XSS attack.</p>
+
+
+    
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="allowfullscreen" loading="eager" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/zv0kZKC6GAM?autoplay=0&controls=1&end=0&loop=0&mute=0&start=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="YouTube video"
+      ></iframe>
+    </div>
+
+<p>This cautionary tale teaches us that, although these attacks are almost as old as the internet and the defenses against them have been an industry-standard for a long time, we still need to keep in mind that these vulnerabilities can be introduced into our applications, whether by sheer incompetence or malevolence. Thus, testing the systems we build for these vulnerabilities is an essential and unskippable step in ensuring its reliability and security,</p>
+
+</div>
+
+            </main>
+        </div>
+        <footer class="footer">
+    &copy; 2024 del Castillo, Dy, Perez, Built with
+    <a href="https://gohugo.io" class="footerLink">Hugo</a> and
+    <a href="https://github.com/akopdev/hugo-theme-rose-pine" class="footerLink">Rose Pine</a> theme
+</footer>
+
+
+    
+    <script src="/sycasec/js/copy-code.min.js"></script>
+
+
+    </div>
+</body>
+</html>
