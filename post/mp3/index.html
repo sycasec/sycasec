@@ -7,7 +7,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="generator" content="Hugo 0.125.4">
+<meta name="generator" content="Hugo 0.125.7">
 
 
 <link rel="canonical" href="https://sycasec.github.io/sycasec/post/mp3/" >
@@ -135,9 +135,13 @@ Look at that sweet login form. It needs to be broken in with some <em>Big Bad Co
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="s2">&#34;XSS attack!&#34;</span><span class="p">)&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">alert</span><span class="p">(</span><span class="s2">&#34;XSS attack!&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>We hit post, and:</p>
@@ -154,7 +158,7 @@ Look at that sweet login form. It needs to be broken in with some <em>Big Bad Co
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;/logout&#34;</span><span class="p">/&gt;</span>
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;/logout&#34;</span> <span class="p">/&gt;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>which effectively sends a valid <code>GET</code> request to the logout endpoint. After clicking post:</p>
@@ -266,12 +270,18 @@ What we do is delete the <code>session_token</code> cookie stored in our browser
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># parameterize session tokens</span>
 </span></span><span class="line"><span class="cl"><span class="n">res</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;SELECT username FROM users INNER JOIN sessions ON &#34;</span>
 </span></span><span class="line"><span class="cl">                  <span class="o">+</span> <span class="s2">&#34;users.id = sessions.user WHERE sessions.token = ?&#34;</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">                  <span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;session_token&#34;</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># parameterized username and password</span>
+</span></span><span class="line"><span class="cl"><span class="n">res</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;SELECT id from users WHERE username = ? AND password = ?&#34;</span><span class="p">,</span> <span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s2">&#34;username&#34;</span><span class="p">],</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s2">&#34;password&#34;</span><span class="p">]])</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>We apply this to every SQL query made. The fully patched code is located <a href="https://github.com/sycasec/mp3-vuln-app">here</a></p>
@@ -299,7 +309,13 @@ What we do is delete the <code>session_token</code> cookie stored in our browser
 </span></span><span class="line"><span class="cl">    <span class="n">con</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><!-- raw HTML omitted -->
+</div><figure style="text-align: center;">
+    
+    <img src="sanitize.gif" alt="csrf attack blocked" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
 <h3 id="not-today-sir-csrf-only">Not today sir, CSRF only</h3>
 <p>We can simply implement a CSRF Token to disable these kinds of attacks like so:</p>
 <div class="highlight"><div class="chroma">
@@ -346,13 +362,13 @@ What we do is delete the <code>session_token</code> cookie stored in our browser
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Welcome, {{username}}!<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
-</span></span><span class="line"><span class="cl">      <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;/logout&#34;</span><span class="p">&gt;</span>Logout<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">h3</span><span class="p">&gt;</span>Posts<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
-</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">form</span> <span class="na">method</span><span class="o">=</span><span class="s">&#34;post&#34;</span> <span class="na">action</span><span class="o">=</span><span class="s">&#34;/posts&#34;</span><span class="p">&gt;</span>
-</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;message&#34;</span> <span class="p">/&gt;</span>
-</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;hidden&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;csrf_token&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;{{ csrf_token }}&#34;</span> <span class="p">/&gt;</span>
-</span></span><span class="line"><span class="cl">    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;submit&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;Post!&#34;</span> <span class="p">/&gt;</span>
-</span></span><span class="line"><span class="cl">  <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&#34;/logout&#34;</span><span class="p">&gt;</span>Logout<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">h3</span><span class="p">&gt;</span>Posts<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">form</span> <span class="na">method</span><span class="o">=</span><span class="s">&#34;post&#34;</span> <span class="na">action</span><span class="o">=</span><span class="s">&#34;/posts&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;text&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;message&#34;</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;hidden&#34;</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;csrf_token&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;{{ csrf_token }}&#34;</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;submit&#34;</span> <span class="na">value</span><span class="o">=</span><span class="s">&#34;Post!&#34;</span> <span class="p">/&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>and of course we check for the CSRF token when a <code>POST</code> request is made to the <code>/posts</code> route:</p>
@@ -364,24 +380,76 @@ What we do is delete the <code>session_token</code> cookie stored in our browser
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
-</span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s2">&#34;/posts&#34;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;POST&#34;</span><span class="p">])</span>
-</span></span><span class="line"><span class="cl"><span class="nd">@limiter.limit</span><span class="p">(</span><span class="s2">&#34;2/second&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">posts</span><span class="p">():</span>
 </span></span><span class="line"><span class="cl">    <span class="n">cur</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;session_token&#34;</span><span class="p">)</span> <span class="ow">and</span> 
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;session_token&#34;</span><span class="p">)</span> <span class="ow">and</span>
 </span></span><span class="line"><span class="cl">        <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;csrf_token&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;csrf_token&#34;</span><span class="p">):</span>
 </span></span><span class="line"><span class="cl">    <span class="c1"># the rest of the /post route code goes here...</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>We didn&rsquo;t really change much of the code in the app after this, so a valid POST request is made resulting in a <code>302 FOUND</code> response, but it doesn&rsquo;t get past the <code>csrf_token</code> check so nothing is done beyond that.</p>
-<!-- raw HTML omitted -->
-<h3 id="you-are-blocked">You are blocked!!</h3>
-<p>To make this MP more <del>complicated</del> interesting, we can add a simple rate limiter on the number of login attempts a user can do. This increases the security of our web app by preventing attackers from brute forcing the login page.</p>
-<p>For the sake of not reinventing the wheel, we will use the Flask Limiter extension. The simplest setup (yoinked from the <a href="https://flask-limiter.readthedocs.io/en/stable/">documentation</a>) is enough for this MP. The limits <code>1/second</code>, <code>10/hour</code>,  and <code>100/day</code> are used in the login page to demonstrate the defense-in-depth principle. We will also add a <code>2/second</code> rate limiter to the <code>posts</code> API for funsies.</p>
-<p>When a user (potentially an attacker) exceeds this limit, they will get the following errors and won’t be able to make requests until some time has passed.</p>
+<figure style="text-align: center;">
+    
+    <img src="csrf_block.gif" alt="csrf attack blocked" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<h2 id="what-else-can-we-do">What else can we do</h2>
+<p>Alright, we fixed the major security flaws. But to make this MP more <del>complicated</del> interesting, we can also implement a simple rate limiter to prevent brute force attacks.</p>
+<p>For the sake of not rewheeling the invention, we can just install the Flask Limiter extension. The simplest setup (yoinked from the <a href="https://flask-limiter.readthedocs.io/en/stable/">documentation</a>) is enough for this MP.</p>
+<p>We setup the limiter like this</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">limiter</span> <span class="o">=</span> <span class="n">Limiter</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">get_remote_address</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">storage_uri</span><span class="o">=</span><span class="s2">&#34;memory://&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We can now limit the access to our endpoints.</p>
+<p>For the <code>login</code> endpoint, we can use multiple rate limits for funsies.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@limiter.limit</span><span class="p">(</span><span class="s2">&#34;1/second&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@limiter.limit</span><span class="p">(</span><span class="s2">&#34;10/hour&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@limiter.limit</span><span class="p">(</span><span class="s2">&#34;100/day&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>For the <code>posts</code> endpoint, we can do something like this</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@limiter.limit</span><span class="p">(</span><span class="s2">&#34;2/second&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">posts</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>When a user reaches the rate limit, they will get these errors and won’t be able to make requests until some time has passed.</p>
 <figure style="text-align: center;">
     
     <img src="MP3%20writeup-20240501070954452.webp" alt="rate limit error" style="max-width: 100%; height: auto;">
@@ -403,7 +471,8 @@ What we do is delete the <code>session_token</code> cookie stored in our browser
     
 </figure>
 
-<p>To determine whether this security measure is actually working, we need to test it with other devices. Unfortunately, using <code>flask run</code> won’t allow other devices to connect to our server, even if we expose port 5000 in our Firewall. Although this is <a href="https://flask.palletsprojects.com/en/3.0.x/quickstart/#public-server">not recommended</a>, we can just simply run flask with <code>flask run --host=0.0.0.0</code> while still exposing port 5000 in our Firewall. With this, we can now test it with other devices.</p>
+<p>To make this even more interesting, we can check if this actually works using other devices. Unfortunately, using <code>flask run</code> won’t allow other devices to connect to our server, even if we expose port 5000 in our Firewall. Although this is <a href="https://flask.palletsprojects.com/en/3.0.x/quickstart/#public-server">not recommended</a>, we can just simply run flask with <code>flask run --host=0.0.0.0</code> while still exposing port 5000 in our Firewall.</p>
+<p>I&rsquo;m using my phone to test this.</p>
 <figure style="text-align: center;">
     
     <img src="MP3%20writeup-20240501071434864.webp" alt="rate limit error" style="max-width: 100%; height: auto;">
@@ -411,9 +480,18 @@ What we do is delete the <code>session_token</code> cookie stored in our browser
     
 </figure>
 
-<h1 id="conclusion">Conclusion</h1>
-<p><em>edit or add lang sad diri</em>
-Notice that much of the exploits stem from not sanitizing user inputs. Although this is Web Security 101, popular platforms can still fail to implement this. For example, the infamous self-retweeting tweet in 2014 that exploited this vulnerability of TweetDeck using an XSS attack.</p>
+<h2 id="emploice-muswashans">Emploice Muswashans</h2>
+<figure style="text-align: center;">
+    
+    <img src="emploice.png" alt="emploice" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
+<p>So what have we learned?</p>
+<p>We learned to clean our inputs. And, well, use CSRF tokens.</p>
+<p>Most of the fixes are just sanitization with extra steps.</p>
+<p>Don&rsquo;t be like 2014 TweetDeck that forgot to do this.</p>
 
 
     
@@ -422,7 +500,15 @@ Notice that much of the exploits stem from not sanitizing user inputs. Although 
       ></iframe>
     </div>
 
-<p>This cautionary tale teaches us that, although these attacks are almost as old as the internet and the defenses against them have been an industry-standard for a long time, we still need to keep in mind that these vulnerabilities can be introduced into our applications, whether by sheer incompetence or malevolence. Thus, testing the systems we build for these vulnerabilities is an essential and unskippable step in ensuring its reliability and security,</p>
+<p>Or that one University portal that still doesn&rsquo;t do this (yes, we&rsquo;re all looking at you).</p>
+<p>Or that other University that just got their employees&rsquo; salaries leaked.</p>
+<figure style="text-align: center;">
+    
+    <img src="ctu_leaked.png" alt="CTU leak" style="max-width: 100%; height: auto;">
+    
+    
+</figure>
+
 
 </div>
 
